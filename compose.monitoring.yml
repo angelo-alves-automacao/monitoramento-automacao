@@ -121,6 +121,8 @@ services:
     restart: unless-stopped
     command:
       - "--path.rootfs=/host"
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
     volumes:
       - /:/host:ro
     networks:
