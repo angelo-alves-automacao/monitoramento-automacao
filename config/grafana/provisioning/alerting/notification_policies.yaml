@@ -1,0 +1,18 @@
+# =============================================================================
+# Grafana — Notification Policies Provisioning
+#
+# Roteamento: todos os alertas → All Channels (Cliq + Email)
+# Agrupamento por alertname + severity para evitar flood de notificações
+# =============================================================================
+
+apiVersion: 1
+
+policies:
+  - orgId: 1
+    receiver: All Channels
+    group_by:
+      - alertname
+      - severity
+    group_wait: 30s        # aguarda 30s para agrupar alertas simultâneos
+    group_interval: 5m     # intervalo mínimo entre notificações do mesmo grupo
+    repeat_interval: 4h    # renotifica se o alerta continuar ativo após 4h

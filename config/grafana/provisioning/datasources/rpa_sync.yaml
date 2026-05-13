@@ -1,0 +1,28 @@
+# =============================================================================
+# Grafana — Datasource: RPA Sync (Oracle→PostgreSQL)
+# Conecta ao schema rpa_sync no mesmo PostgreSQL do MAEZO.
+# Pré-requisito: rodar sql/01_schema.sql e sql/02_tables.sql e o oracle_sync
+#                estar sincronizando as tabelas ROBO_RPA.
+# =============================================================================
+
+apiVersion: 1
+
+datasources:
+  - name: RPA Sync (Oracle→PG)
+    type: postgres
+    access: proxy
+    url: postgres:5432
+    database: cibseven
+    user: maestro
+    secureJsonData:
+      password: ${PG_PASSWORD}
+    uid: rpa-sync-pg
+    jsonData:
+      sslmode: disable
+      maxOpenConns: 5
+      maxIdleConns: 2
+      connMaxLifetime: 14400
+      postgresVersion: 1600
+      timescaledb: false
+      search_path: rpa_sync
+    editable: true

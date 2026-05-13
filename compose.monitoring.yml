@@ -1,0 +1,143 @@
+services:
+
+  # ── Prometheus ────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.54.0
+    container_name: austa-prometheus
+    restart: unless-stopped
+    ports:
+      - "9091:9090"     # 9091 no host — MAEZO usa 9090
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./data/prometheus:/prometheus
+    networks:
+      - maestro_local
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Grafana ───────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: austa-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"     # 3001 no host — MAEZO usa 3000
+    environment:
+      GF_SECURITY_ADMIN_USER:     ${GF_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_ADMIN_PASSWORD:-admin}
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_AUTH_ANONYMOUS_ENABLED:  "false"
+      GF_USERS_ALLOW_SIGN_UP:     "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      # SMTP (opcional)
+      GF_SMTP_ENABLED:   ${GF_SMTP_ENABLED:-false}
+      GF_SMTP_HOST:      ${GF_SMTP_HOST:-}
+      GF_SMTP_FROM_ADDRESS: ${GF_SMTP_FROM:-}
+      # Alertas
+      N8N_GRAFANA_WEBHOOK_URL: ${N8N_GRAFANA_WEBHOOK_URL:-}
+      GRAFANA_ALERT_EMAIL:     ${GRAFANA_ALERT_EMAIL:-}
+      # Datasources (senhas injetadas via env)
+      PG_PASSWORD: ${PG_PASSWORD:-maestro_local}
+    volumes:
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./data/grafana:/var/lib/grafana
+    networks:
+      - maestro_local
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Oracle → PostgreSQL Sync (RPA) ────────────────────────────────────────
+  oracle_sync:
+    build: ./sync
+    image: austa-oracle-sync:latest
+    container_name: austa-oracle-sync
+    restart: unless-stopped
+    environment:
+      ORACLE_USER:     ${ORACLE_USER}
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD}
+      ORACLE_HOST:     ${ORACLE_HOST}
+      ORACLE_PORT:     ${ORACLE_PORT:-1521}
+      ORACLE_SERVICE:  ${ORACLE_SERVICE}
+      PG_HOST:         ${PG_HOST:-postgres}
+      PG_PORT:         ${PG_PORT:-5432}
+      PG_DB:           ${PG_DB:-cibseven}
+      PG_USER:         ${PG_USER:-maestro}
+      PG_PASSWORD:     ${PG_PASSWORD:-maestro_local}
+      SYNC_INTERVAL:   ${SYNC_INTERVAL:-300}
+      BATCH_SIZE:      ${BATCH_SIZE:-500}
+    volumes:
+      - ./data/sync-logs:/app/logs
+    networks:
+      - maestro_local
+
+  # ── TRANSIÇÃO: node_exporter e cadvisor ──────────────────────────────────
+  # Durante a transição, este stack reutiliza os exporters do MAEZO
+  # via rede maestro_local (node_exporter em host.docker.internal:9100,
+  # cadvisor em cadvisor:8080, kafka_exporter:9308, postgres_exporter:9187).
+  #
+  # Quando remover o compose.observability.yml do MAEZO, descomentar abaixo:
+  #
+  # node_exporter:
+  #   image: prom/node-exporter:v1.8.2
+  #   container_name: austa-node-exporter
+  #   restart: unless-stopped
+  #   network_mode: host
+  #   pid: host
+  #   command:
+  #     - "--path.rootfs=/host"
+  #   volumes:
+  #     - /:/host:ro,rslave
+  #
+  # cadvisor:
+  #   image: gcr.io/cadvisor/cadvisor:v0.49.1
+  #   container_name: austa-cadvisor
+  #   restart: unless-stopped
+  #   ports:
+  #     - "9082:8080"
+  #   privileged: true
+  #   volumes:
+  #     - /:/rootfs:ro
+  #     - /var/run:/var/run:ro
+  #     - /sys:/sys:ro
+  #     - /var/lib/docker/:/var/lib/docker:ro
+  #   networks:
+  #     - maestro_local
+  #
+  # kafka_exporter:
+  #   image: danielqsj/kafka-exporter:v1.7.0
+  #   container_name: austa-kafka-exporter
+  #   restart: unless-stopped
+  #   command: ["--kafka.server=kafka:9092", "--kafka.version=3.7.0"]
+  #   ports:
+  #     - "9309:9308"
+  #   networks:
+  #     - maestro_local
+  #
+  # postgres_exporter:
+  #   image: prometheuscommunity/postgres-exporter:v0.15.0
+  #   container_name: austa-postgres-exporter
+  #   restart: unless-stopped
+  #   environment:
+  #     DATA_SOURCE_NAME: "postgresql://maestro:${PG_PASSWORD}@postgres:5432/cibseven?sslmode=disable"
+  #   ports:
+  #     - "9188:9187"
+  #   networks:
+  #     - maestro_local
+
+networks:
+  maestro_local:
+    external: true    # rede criada pelo MAEZO (compose do Healthcare-Orchest)

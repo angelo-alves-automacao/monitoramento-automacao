@@ -1,0 +1,681 @@
+﻿{
+  "annotations": { "list": [] },
+  "description": "Detalhes de instancias BPMN: atividades, external tasks, incidents, variaveis e timeline — dados direto do CIB Seven DB.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "icon": "external link",
+      "tags": [],
+      "targetBlank": true,
+      "title": "CIB Seven Cockpit",
+      "tooltip": "Abrir CIB Seven Cockpit",
+      "type": "link",
+      "url": "http://localhost:8085/camunda/app/cockpit/default/"
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Visao Geral das Instancias",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 0, "y": 1 },
+      "id": 1,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "title": "Ativas",
+      "type": "stat",
+      "targets": [{
+        "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+        "rawSql": "SELECT COUNT(*) AS \"Ativas\" FROM act_hi_procinst WHERE state_ = 'ACTIVE' AND proc_def_key_ LIKE 'SP_RC_%';",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 4, "y": 1 },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "title": "Concluidas (24h)",
+      "type": "stat",
+      "targets": [{
+        "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+        "rawSql": "SELECT COUNT(*) AS \"Concluidas\" FROM act_hi_procinst WHERE state_ = 'COMPLETED' AND end_time_ >= NOW() - INTERVAL '24 hours' AND proc_def_key_ LIKE 'SP_RC_%';",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 8, "y": 1 },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "title": "Incidents Ativos",
+      "type": "stat",
+      "targets": [{
+        "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+        "rawSql": "SELECT COUNT(*) AS \"Incidents\" FROM act_ru_incident WHERE proc_def_key_ LIKE 'SP_RC_%';",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "purple", "value": null }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 12, "y": 1 },
+      "id": 4,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "title": "Duracao Media (s)",
+      "type": "stat",
+      "targets": [{
+        "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+        "rawSql": "SELECT ROUND(AVG(EXTRACT(EPOCH FROM (end_time_ - start_time_)))::numeric, 1) AS \"Media\" FROM act_hi_procinst WHERE state_ = 'COMPLETED' AND end_time_ >= NOW() - INTERVAL '24 hours' AND proc_def_key_ LIKE 'SP_RC_%';",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "orange", "value": null }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 16, "y": 1 },
+      "id": 5,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "title": "External Tasks (24h)",
+      "type": "stat",
+      "targets": [{
+        "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+        "rawSql": "SELECT COUNT(*) AS \"Tasks\" FROM act_hi_ext_task_log WHERE timestamp_ >= NOW() - INTERVAL '24 hours' AND state_ = 2;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "yellow", "value": null }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 3, "w": 4, "x": 20, "y": 1 },
+      "id": 6,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "title": "Tasks com Falha (24h)",
+      "type": "stat",
+      "targets": [{
+        "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+        "rawSql": "SELECT COUNT(*) AS \"Falhas\" FROM act_hi_ext_task_log WHERE timestamp_ >= NOW() - INTERVAL '24 hours' AND state_ = 3;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 4 },
+      "id": 101,
+      "title": "Instancias de Processo",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Estado" },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  { "options": { "ACTIVE": { "color": "blue", "index": 0, "text": "ATIVA" } }, "type": "value" },
+                  { "options": { "COMPLETED": { "color": "green", "index": 1, "text": "CONCLUIDA" } }, "type": "value" },
+                  { "options": { "EXTERNALLY_TERMINATED": { "color": "red", "index": 2, "text": "CANCELADA" } }, "type": "value" },
+                  { "options": { "INTERNALLY_TERMINATED": { "color": "orange", "index": 3, "text": "TERMINADA" } }, "type": "value" }
+                ]
+              },
+              { "id": "custom.width", "value": 110 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Processo" },
+            "properties": [{ "id": "custom.width", "value": 220 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Duracao" },
+            "properties": [{ "id": "custom.width", "value": 100 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "ID" },
+            "properties": [{ "id": "custom.width", "value": 100 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Inicio" },
+            "properties": [{ "id": "custom.width", "value": 160 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Etapa Atual" },
+            "properties": [{ "id": "custom.width", "value": 250 }]
+          }
+        ]
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 5 },
+      "id": 10,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": { "countRows": true, "reducer": ["count"], "show": true },
+        "sortBy": [{ "desc": true, "displayName": "Inicio" }]
+      },
+      "title": "Todas as Instancias RC",
+      "type": "table",
+      "targets": [{
+        "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+        "rawSql": "SELECT\n  LEFT(p.id_, 12) AS \"ID\",\n  REPLACE(REPLACE(p.proc_def_key_, 'SP_RC_00', 'RC-00'), 'SP_RC_0', 'RC-0') AS \"Processo\",\n  p.state_ AS \"Estado\",\n  p.business_key_ AS \"Business Key\",\n  p.start_time_ AS \"Inicio\",\n  CASE\n    WHEN p.end_time_ IS NOT NULL THEN\n      ROUND(EXTRACT(EPOCH FROM (p.end_time_ - p.start_time_))::numeric, 1) || 's'\n    ELSE\n      ROUND(EXTRACT(EPOCH FROM (NOW() - p.start_time_))::numeric, 0) || 's (em curso)'\n  END AS \"Duracao\",\n  COALESCE(\n    (SELECT a.act_name_\n     FROM act_hi_actinst a\n     WHERE a.proc_inst_id_ = p.id_\n       AND a.end_time_ IS NULL\n       AND a.act_type_ NOT IN ('multiInstanceBody','noneStartEvent')\n     ORDER BY a.start_time_ DESC\n     LIMIT 1),\n    CASE WHEN p.state_ = 'COMPLETED' THEN '(concluido)' ELSE '?' END\n  ) AS \"Etapa Atual\",\n  (SELECT COUNT(*) FROM act_ru_incident i WHERE i.proc_inst_id_ = p.id_) AS \"Incidents\"\nFROM act_hi_procinst p\nWHERE p.proc_def_key_ LIKE 'SP_RC_%'\n  AND p.start_time_ >= NOW() - INTERVAL '7 days'\nORDER BY p.start_time_ DESC\nLIMIT 100;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 15 },
+      "id": 102,
+      "title": "Detalhe da Instancia Selecionada",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "filterable": false,
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Status" },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": { "mode": "basic", "type": "color-background" }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  { "options": { "OK": { "color": "green", "index": 0 } }, "type": "value" },
+                  { "options": { "EM ANDAMENTO": { "color": "blue", "index": 1 } }, "type": "value" },
+                  { "options": { "CANCELADA": { "color": "orange", "index": 2 } }, "type": "value" }
+                ]
+              },
+              { "id": "custom.width", "value": 120 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "#" },
+            "properties": [{ "id": "custom.width", "value": 40 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Tipo" },
+            "properties": [{ "id": "custom.width", "value": 140 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Duracao" },
+            "properties": [{ "id": "custom.width", "value": 90 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Inicio" },
+            "properties": [{ "id": "custom.width", "value": 160 }]
+          }
+        ]
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 16 },
+      "id": 20,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": [{ "desc": false, "displayName": "#" }]
+      },
+      "title": "Atividades da Instancia",
+      "description": "Insira o instance_id na variavel $instance_id para ver o detalhe.",
+      "type": "table",
+      "targets": [{
+        "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+        "rawSql": "SELECT\n  ROW_NUMBER() OVER (ORDER BY a.start_time_) AS \"#\",\n  a.act_type_ AS \"Tipo\",\n  COALESCE(a.act_name_, a.act_id_) AS \"Nome\",\n  a.start_time_ AS \"Inicio\",\n  CASE\n    WHEN a.end_time_ IS NOT NULL THEN\n      CASE\n        WHEN EXTRACT(EPOCH FROM (a.end_time_ - a.start_time_)) < 1\n          THEN ROUND(EXTRACT(EPOCH FROM (a.end_time_ - a.start_time_))::numeric * 1000) || 'ms'\n        WHEN EXTRACT(EPOCH FROM (a.end_time_ - a.start_time_)) < 60\n          THEN ROUND(EXTRACT(EPOCH FROM (a.end_time_ - a.start_time_))::numeric, 1) || 's'\n        ELSE ROUND(EXTRACT(EPOCH FROM (a.end_time_ - a.start_time_))::numeric / 60, 1) || 'm'\n      END\n    ELSE '-'\n  END AS \"Duracao\",\n  CASE\n    WHEN a.canceled_ = TRUE THEN 'CANCELADA'\n    WHEN a.end_time_ IS NOT NULL THEN 'OK'\n    ELSE 'EM ANDAMENTO'\n  END AS \"Status\"\nFROM act_hi_actinst a\nWHERE a.proc_inst_id_ = '$instance_id'\n  AND a.act_type_ NOT IN ('multiInstanceBody')\nORDER BY a.start_time_;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 26 },
+      "id": 103,
+      "title": "External Tasks da Instancia",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "filterable": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Status" },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": { "mode": "basic", "type": "color-background" }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  { "options": { "CRIADA": { "color": "yellow", "index": 0 } }, "type": "value" },
+                  { "options": { "OK": { "color": "green", "index": 1 } }, "type": "value" },
+                  { "options": { "FALHA": { "color": "red", "index": 2 } }, "type": "value" },
+                  { "options": { "DELETADA": { "color": "orange", "index": 3 } }, "type": "value" }
+                ]
+              },
+              { "id": "custom.width", "value": 90 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Topico" },
+            "properties": [{ "id": "custom.width", "value": 300 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Quando" },
+            "properties": [{ "id": "custom.width", "value": 160 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Worker" },
+            "properties": [{ "id": "custom.width", "value": 150 }]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 27 },
+      "id": 30,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": [{ "desc": false, "displayName": "Quando" }]
+      },
+      "title": "External Tasks Log",
+      "type": "table",
+      "targets": [{
+        "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+        "rawSql": "SELECT\n  t.topic_name_ AS \"Topico\",\n  CASE t.state_\n    WHEN 0 THEN 'CRIADA'\n    WHEN 1 THEN 'FALHA'\n    WHEN 2 THEN 'OK'\n    WHEN 3 THEN 'DELETADA'\n    ELSE 'OUTRO'\n  END AS \"Status\",\n  t.worker_id_ AS \"Worker\",\n  t.timestamp_ AS \"Quando\",\n  COALESCE(t.error_msg_, '') AS \"Erro\"\nFROM act_hi_ext_task_log t\nWHERE t.proc_inst_id_ = '$instance_id'\nORDER BY t.timestamp_;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 35 },
+      "id": 104,
+      "title": "Incidents da Instancia",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "filterable": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Status" },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": { "mode": "basic", "type": "color-background" }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  { "options": { "ATIVO": { "color": "red", "index": 0 } }, "type": "value" },
+                  { "options": { "RESOLVIDO": { "color": "green", "index": 1 } }, "type": "value" }
+                ]
+              },
+              { "id": "custom.width", "value": 100 }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 36 },
+      "id": 40,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      },
+      "title": "Incidents (Erros)",
+      "type": "table",
+      "targets": [{
+        "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+        "rawSql": "SELECT\n  i.incident_type_ AS \"Tipo\",\n  CASE WHEN i.end_time_ IS NULL THEN 'ATIVO' ELSE 'RESOLVIDO' END AS \"Status\",\n  COALESCE(i.activity_id_, '') AS \"Atividade\",\n  i.create_time_ AS \"Criado\",\n  i.end_time_ AS \"Resolvido\",\n  LEFT(COALESCE(i.incident_msg_, ''), 200) AS \"Mensagem\"\nFROM act_hi_incident i\nWHERE i.proc_inst_id_ = '$instance_id'\nORDER BY i.create_time_ DESC;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 42 },
+      "id": 105,
+      "title": "Variaveis da Instancia",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "filterable": true
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Variavel" },
+            "properties": [{ "id": "custom.width", "value": 280 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Tipo" },
+            "properties": [{ "id": "custom.width", "value": 80 }]
+          }
+        ]
+      },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 43 },
+      "id": 50,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": [{ "desc": false, "displayName": "Variavel" }]
+      },
+      "title": "Variaveis do Processo",
+      "type": "table",
+      "targets": [{
+        "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+        "rawSql": "SELECT\n  v.name_ AS \"Variavel\",\n  v.var_type_ AS \"Tipo\",\n  CASE\n    WHEN v.var_type_ = 'string' THEN LEFT(COALESCE(v.text_, ''), 200)\n    WHEN v.var_type_ = 'boolean' THEN COALESCE(CAST(v.long_ AS TEXT), '')\n    WHEN v.var_type_ IN ('integer', 'long') THEN COALESCE(CAST(v.long_ AS TEXT), '')\n    WHEN v.var_type_ = 'double' THEN COALESCE(CAST(v.double_ AS TEXT), '')\n    WHEN v.var_type_ IN ('object', 'json') THEN LEFT(COALESCE(v.text_, v.text2_, ''), 200)\n    ELSE LEFT(COALESCE(v.text_, ''), 200)\n  END AS \"Valor\"\nFROM act_hi_varinst v\nWHERE v.proc_inst_id_ = '$instance_id'\nORDER BY v.name_;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 55 },
+      "id": 106,
+      "title": "Jobs Pendentes da Instancia",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "filterable": false
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 56 },
+      "id": 60,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      },
+      "title": "Jobs (Timers / Async)",
+      "type": "table",
+      "targets": [{
+        "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+        "rawSql": "SELECT\n  j.type_ AS \"Tipo\",\n  COALESCE(j.handler_type_, '') AS \"Handler\",\n  j.duedate_ AS \"Due Date\",\n  j.retries_ AS \"Retries\",\n  j.suspension_state_ AS \"Suspenso\",\n  LEFT(COALESCE(j.exception_msg_, ''), 200) AS \"Excecao\"\nFROM act_ru_job j\nWHERE j.process_instance_id_ = '$instance_id'\nORDER BY j.duedate_;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 61 },
+      "id": 107,
+      "title": "Timeline de Execucao (ultimas 24h)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisLabel": "",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "stacking": { "group": "A", "mode": "normal" }
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 62 },
+      "id": 70,
+      "options": {
+        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "title": "Instancias Iniciadas por Hora",
+      "type": "timeseries",
+      "targets": [{
+        "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+        "rawSql": "SELECT\n  date_trunc('hour', p.start_time_) AS \"time\",\n  REPLACE(REPLACE(p.proc_def_key_, 'SP_RC_00', 'RC-00'), 'SP_RC_0', 'RC-0') AS \"metric\",\n  COUNT(*) AS \"value\"\nFROM act_hi_procinst p\nWHERE p.proc_def_key_ LIKE 'SP_RC_%'\n  AND p.start_time_ >= NOW() - INTERVAL '24 hours'\nGROUP BY 1, 2\nORDER BY 1;",
+        "format": "time_series",
+        "refId": "A"
+      }]
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "lineWidth": 1,
+            "stacking": { "group": "A", "mode": "normal" }
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 70 },
+      "id": 71,
+      "options": {
+        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "title": "External Tasks Completadas por Hora / Topico",
+      "type": "timeseries",
+      "targets": [{
+        "datasource": { "type": "postgres", "uid": "cibseven-pg" },
+        "rawSql": "SELECT\n  date_trunc('hour', t.timestamp_) AS \"time\",\n  t.topic_name_ AS \"metric\",\n  COUNT(*) AS \"value\"\nFROM act_hi_ext_task_log t\nWHERE t.state_ = 2\n  AND t.timestamp_ >= NOW() - INTERVAL '24 hours'\nGROUP BY 1, 2\nORDER BY 1;",
+        "format": "time_series",
+        "refId": "A"
+      }]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["maezo", "bpmn", "instancias", "rc", "diagnostico"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": false, "text": "", "value": "" },
+        "description": "ID da instancia de processo (copie da tabela acima)",
+        "hide": 0,
+        "label": "Instance ID",
+        "name": "instance_id",
+        "options": [],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "MAEZO — Instancias BPMN (Diagnostico)",
+  "uid": "maezo-instance-detail",
+  "version": 1
+}

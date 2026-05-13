@@ -1,0 +1,132 @@
+# =============================================================================
+# AUSTA — Prometheus (stack independente de monitoramento)
+#
+# Porta externa: 9091 (MAEZO ocupa 9090 durante a transição)
+#
+# TRANSIÇÃO: exporters reutilizados do MAEZO via maestro_local
+#   kafka_exporter:9308, postgres_exporter:9187, cadvisor:8080
+#   node_exporter: host.docker.internal:9100
+#
+# Após remover compose.observability.yml do MAEZO:
+#   Subir os exporters neste compose e ajustar targets abaixo
+# =============================================================================
+
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+  scrape_timeout:      10s
+  external_labels:
+    environment: local
+    platform:    austa
+
+alerting:
+  alertmanagers: []
+
+scrape_configs:
+
+  # ── Prometheus self-monitoring ─────────────────────────────────────────────
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+        labels:
+          service: prometheus-austa
+
+  # ── Workers MAEZO (CIB Seven External Task) ────────────────────────────────
+  - job_name: maezo_workers
+    scrape_interval: 10s
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - workers_rc:8000
+          - workers_co:8000
+          - workers_pa:8000
+          - workers_ps:8000
+        labels:
+          component: worker
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: 'workers_(.+):.*'
+        target_label: domain
+        replacement: '${1}'
+
+  # ── Contract Extraction API ────────────────────────────────────────────────
+  - job_name: maezo_ce_api
+    scrape_interval: 15s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["ce_api:8000"]
+        labels:
+          component: api
+          service:   contract_extraction
+
+  # ── CIB Seven BPM Engine (via json_exporter) ──────────────────────────────
+  - job_name: cib7_bpm
+    scrape_interval: 15s
+    metrics_path: /probe
+    static_configs:
+      - targets:
+          - "http://cib7:8080/engine-rest/metrics/process-instances/sum|process_instances"
+          - "http://cib7:8080/engine-rest/metrics/flow-node-instances/sum|flow_node_instances"
+          - "http://cib7:8080/engine-rest/metrics/job-successful/sum|job_successful"
+          - "http://cib7:8080/engine-rest/metrics/job-failed/sum|job_failed"
+          - "http://cib7:8080/engine-rest/metrics/activity-instance-end/sum|activity_instance_end"
+          - "http://cib7:8080/engine-rest/metrics/decision-instances/sum|decision_instances"
+        labels:
+          component: bpm_engine
+          service:   cibseven
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: "(.*?)\\|(.*)"
+        target_label: __param_target
+        replacement: "${1}"
+      - source_labels: [__address__]
+        regex: "(.*?)\\|(.*)"
+        target_label: __param_module
+        replacement: "${2}"
+      - source_labels: [__address__]
+        regex: "(.*?)\\|(.*)"
+        target_label: cib7_metric
+        replacement: "${2}"
+      - target_label: __address__
+        replacement: "cib7_exporter:7979"
+
+  # ── Kafka (exporter do MAEZO via maestro_local) ────────────────────────────
+  # Após migração: trocar para austa-kafka-exporter:9308
+  - job_name: kafka
+    scrape_interval: 30s
+    static_configs:
+      - targets: ["kafka_exporter:9308"]
+        labels:
+          component: kafka
+          service:   kafka_exporter
+
+  # ── PostgreSQL (exporter do MAEZO via maestro_local) ──────────────────────
+  # Após migração: trocar para austa-postgres-exporter:9187
+  - job_name: postgres
+    scrape_interval: 30s
+    static_configs:
+      - targets: ["postgres_exporter:9187"]
+        labels:
+          component: database
+          service:   postgresql
+
+  # ── Node Exporter (host — único por servidor) ──────────────────────────────
+  # Não duplicar: usa o do MAEZO via host.docker.internal
+  # Após migração: trocar para localhost:9100 (node_exporter em host mode)
+  - job_name: node
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["host.docker.internal:9100"]
+        labels:
+          component: infrastructure
+          service:   node_exporter
+
+  # ── cAdvisor (container do MAEZO via maestro_local) ───────────────────────
+  # Após migração: trocar para austa-cadvisor:8080
+  - job_name: cadvisor
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["cadvisor:8080"]
+        labels:
+          component: infrastructure
+          service:   cadvisor

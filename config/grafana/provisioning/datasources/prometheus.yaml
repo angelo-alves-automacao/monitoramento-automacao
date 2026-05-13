@@ -1,0 +1,18 @@
+# =============================================================================
+# Grafana — Datasource: Prometheus (stack AUSTA independente)
+# uid: prometheus-austa  (MAEZO usa prometheus-maezo)
+# =============================================================================
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    uid: prometheus-austa
+    jsonData:
+      httpMethod: POST
+      timeInterval: 15s
+    editable: false

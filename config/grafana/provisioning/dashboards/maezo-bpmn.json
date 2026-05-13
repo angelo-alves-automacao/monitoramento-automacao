@@ -1,0 +1,196 @@
+﻿{
+  "title": "MAEZO — BPMN Processes & Workers",
+  "uid": "maezo-bpmn-workers",
+  "version": 1,
+  "schemaVersion": 38,
+  "description": "Execuções de processo BPMN, workers External Task e métricas CIB Seven",
+  "tags": ["maezo", "bpmn", "workers", "revenue-cycle"],
+  "editable": true,
+  "graphTooltip": 1,
+  "time": { "from": "now-1h", "to": "now" },
+  "refresh": "15s",
+  "annotations": { "list": [] },
+  "links": [],
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Tarefas Executadas (última hora)",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "prometheus-austa" },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "orientation": "auto" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{"color": "blue", "value": null}] } } },
+      "targets": [
+        {
+          "expr": "sum(increase(cib7_worker_tasks_total[1h]))",
+          "legendFormat": "Total tasks",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Sucesso (última hora)",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "prometheus-austa" },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{"color": "green", "value": null}] }, "unit": "short" } },
+      "targets": [
+        {
+          "expr": "sum(increase(cib7_worker_tasks_total{status=\"success\"}[1h]))",
+          "legendFormat": "Success",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Erros (última hora)",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "prometheus-austa" },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}] }, "unit": "short" } },
+      "targets": [
+        {
+          "expr": "sum(increase(cib7_worker_tasks_total{status=\"error\"}[1h]))",
+          "legendFormat": "Errors",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Instâncias de Processo Ativas (CIB Seven)",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "prometheus-austa" },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{"color": "blue", "value": null}] }, "unit": "short" } },
+      "targets": [
+        {
+          "expr": "cib7_bpm_metric_value{metric_name=\"process-instances\"}",
+          "legendFormat": "Process Instances",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Taxa de Execução por Tópico (tasks/min)",
+      "gridPos": { "x": 0, "y": 4, "w": 24, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus-austa" },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "sum"] } },
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2, "fillOpacity": 10 } } },
+      "targets": [
+        {
+          "expr": "sum by (topic) (rate(cib7_worker_tasks_total[2m])) * 60",
+          "legendFormat": "{{topic}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "bargauge",
+      "title": "Execuções por Tópico (última hora)",
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus-austa" },
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "orientation": "horizontal", "displayMode": "gradient", "valueMode": "color" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "continuous-GrYlRd" } } },
+      "targets": [
+        {
+          "expr": "sort_desc(sum by (topic) (increase(cib7_worker_tasks_total[1h])))",
+          "legendFormat": "{{topic}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Latência P99 por Tópico (segundos)",
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus-austa" },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "max"] } },
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "lineWidth": 2, "fillOpacity": 5 } } },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (topic, le) (rate(cib7_worker_task_duration_seconds_bucket[5m])))",
+          "legendFormat": "p99 {{topic}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "CIB Seven BPM Engine — Instâncias e Flow Nodes",
+      "gridPos": { "x": 0, "y": 20, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus-austa" },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2, "fillOpacity": 10 } } },
+      "targets": [
+        {
+          "expr": "cib7_bpm_metric_value{metric_name=\"process-instances\"}",
+          "legendFormat": "Process Instances",
+          "refId": "A"
+        },
+        {
+          "expr": "cib7_bpm_metric_value{metric_name=\"flow-node-instances\"}",
+          "legendFormat": "Flow Node Instances",
+          "refId": "B"
+        },
+        {
+          "expr": "cib7_bpm_metric_value{metric_name=\"activity-instance-end\"}",
+          "legendFormat": "Activity Instances Ended",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "CIB Seven Jobs — Sucesso / Falha / DMN",
+      "gridPos": { "x": 12, "y": 20, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus-austa" },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2, "fillOpacity": 5 } } },
+      "targets": [
+        {
+          "expr": "cib7_bpm_metric_value{metric_name=\"job-successful\"}",
+          "legendFormat": "Jobs Successful",
+          "refId": "A"
+        },
+        {
+          "expr": "cib7_bpm_metric_value{metric_name=\"job-failed\"}",
+          "legendFormat": "Jobs Failed",
+          "refId": "B"
+        },
+        {
+          "expr": "cib7_bpm_metric_value{metric_name=\"decision-instances\"}",
+          "legendFormat": "DMN Decisions",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Latência Mediana por Tópico (p50)",
+      "gridPos": { "x": 0, "y": 28, "w": 24, "h": 7 },
+      "datasource": { "type": "prometheus", "uid": "prometheus-austa" },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull", "mean", "max"] } },
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "lineWidth": 1, "fillOpacity": 3 } } },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (topic, le) (rate(cib7_worker_task_duration_seconds_bucket[5m])))",
+          "legendFormat": "p50 {{topic}}",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}

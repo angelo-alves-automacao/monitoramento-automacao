@@ -1,0 +1,41 @@
+# =============================================================================
+# Grafana — Contact Points Provisioning
+#
+# Canais de notificação de alertas:
+#   - Zoho Cliq  → webhook no canal configurado via N8N_GRAFANA_WEBHOOK_URL
+#   - Email      → destinatários via GRAFANA_ALERT_EMAIL (separar por vírgula)
+#
+# Variáveis necessárias no .env:
+#   N8N_GRAFANA_WEBHOOK_URL=https://cliq.zoho.com/api/v2/channelsbyname/.../message?zapikey=...
+#   GRAFANA_ALERT_EMAIL=ti@austa.com.br,oncall@austa.com.br
+# =============================================================================
+
+apiVersion: 1
+
+contactPoints:
+
+  - orgId: 1
+    name: All Channels
+    receivers:
+
+      - uid: cliq-alert-receiver
+        type: webhook
+        disableResolveMessage: false
+        settings:
+          url: "${N8N_GRAFANA_WEBHOOK_URL}"
+          httpMethod: POST
+          title: |
+            {{ if eq .Status "firing" }}🔴 ALERTA: {{ .CommonAnnotations.summary }}{{ else }}✅ RESOLVIDO: {{ .CommonAnnotations.summary }}{{ end }}
+          message: |
+            {{ range .Alerts }}
+            *{{ .Annotations.summary }}*
+            {{ .Annotations.description }}
+            Severidade: {{ .Labels.severity }}
+            {{ end }}
+
+      - uid: email-alert-receiver
+        type: email
+        disableResolveMessage: false
+        settings:
+          addresses: "${GRAFANA_ALERT_EMAIL}"
+          singleEmail: false

@@ -1,0 +1,212 @@
+# =============================================================================
+# Grafana — Alert Rules: Infraestrutura (host + containers)
+#
+# Requer: node_exporter e cadvisor scrapeados pelo Prometheus
+# Datasource: prometheus-austa
+# =============================================================================
+
+apiVersion: 1
+
+groups:
+
+  # ---------------------------------------------------------------------------
+  # Host — recursos do servidor
+  # ---------------------------------------------------------------------------
+  - name: Host
+    orgId: 1
+    folder: Alertas Infraestrutura
+    interval: 1m
+    rules:
+
+      - uid: infra-host-disk-critical
+        title: "[CRÍTICO] Disco acima de 90%"
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prometheus-austa
+            relativeTimeRange:
+              from: 60
+              to: 0
+            model:
+              expr: >
+                (1 - (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs"}
+                / node_filesystem_size_bytes{fstype!~"tmpfs|overlay|squashfs"})) * 100 > 90
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        noDataState: OK
+        execErrState: Alerting
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disco {{ $labels.mountpoint }} acima de 90%"
+          description: "Uso atual: {{ printf \"%.1f\" $value }}%. Partição: {{ $labels.mountpoint }} ({{ $labels.device }})."
+
+      - uid: infra-host-disk-warning
+        title: "[AVISO] Disco acima de 80%"
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prometheus-austa
+            relativeTimeRange:
+              from: 60
+              to: 0
+            model:
+              expr: >
+                (1 - (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs"}
+                / node_filesystem_size_bytes{fstype!~"tmpfs|overlay|squashfs"})) * 100 > 80 < 90
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disco {{ $labels.mountpoint }} acima de 80%"
+          description: "Uso atual: {{ printf \"%.1f\" $value }}%. Partição: {{ $labels.mountpoint }}."
+
+      - uid: infra-host-ram-critical
+        title: "[CRÍTICO] RAM acima de 90%"
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prometheus-austa
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              expr: >
+                (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 90
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        noDataState: OK
+        execErrState: Alerting
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "RAM do servidor acima de 90%"
+          description: "Uso atual: {{ printf \"%.1f\" $value }}%."
+
+      - uid: infra-host-ram-warning
+        title: "[AVISO] RAM acima de 80%"
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prometheus-austa
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              expr: >
+                (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 80 < 90
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "RAM do servidor acima de 80%"
+          description: "Uso atual: {{ printf \"%.1f\" $value }}%."
+
+      - uid: infra-host-cpu-critical
+        title: "[CRÍTICO] CPU acima de 90% por 5 minutos"
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prometheus-austa
+            relativeTimeRange:
+              from: 600
+              to: 0
+            model:
+              expr: >
+                100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CPU do servidor acima de 90%"
+          description: "Uso médio nos últimos 5 min: {{ printf \"%.1f\" $value }}%."
+
+  # ---------------------------------------------------------------------------
+  # Containers — status e comportamento anômalo
+  # ---------------------------------------------------------------------------
+  - name: Containers
+    orgId: 1
+    folder: Alertas Infraestrutura
+    interval: 1m
+    rules:
+
+      - uid: infra-container-down
+        title: "[CRÍTICO] Container offline"
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prometheus-austa
+            relativeTimeRange:
+              from: 21600
+              to: 0
+            model:
+              expr: |
+                max_over_time(container_memory_usage_bytes{job="cadvisor",name=~"autorizacao-polling-pa|convenio_selenoid|convenio_selenoid_ui|maezo-workers-cib7-1|maezo-workers-workers_rc-1|maezo-workers-workers_co-1|maezo-workers-workers_pa-1|maezo-workers-workers_ps-1|maezo-infra-postgres-1|maezo-infra-kafka-1|metabase_postgres|47c682a00121_metabase_prd"}[6h])
+                unless on(name)
+                container_memory_usage_bytes{job="cadvisor",name=~"autorizacao-polling-pa|convenio_selenoid|convenio_selenoid_ui|maezo-workers-cib7-1|maezo-workers-workers_rc-1|maezo-workers-workers_co-1|maezo-workers-workers_pa-1|maezo-workers-workers_ps-1|maezo-infra-postgres-1|maezo-infra-kafka-1|metabase_postgres|47c682a00121_metabase_prd"}
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        noDataState: OK
+        execErrState: OK
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container {{ $labels.name }} está offline"
+          description: "O container {{ $labels.name }} não foi detectado pelo cAdvisor. Verifique o serviço."
+
+      - uid: infra-container-restart-loop
+        title: "[AVISO] Container em crash loop"
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: prometheus-austa
+            relativeTimeRange:
+              from: 600
+              to: 0
+            model:
+              expr: >
+                count by (name) (
+                  container_start_time_seconds{
+                    job="cadvisor",
+                    name=~"autorizacao-polling-pa|convenio_selenoid|convenio_selenoid_ui|maezo-workers-cib7-1|maezo-workers-workers_rc-1|maezo-workers-workers_co-1|maezo-workers-workers_pa-1|maezo-workers-workers_ps-1|maezo-infra-postgres-1|maezo-infra-kafka-1|metabase_postgres|47c682a00121_metabase_prd"
+                  }
+                ) > 1
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        noDataState: OK
+        execErrState: OK
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} em crash loop"
+          description: "Múltiplas instâncias simultâneas detectadas — o container está reiniciando repetidamente."

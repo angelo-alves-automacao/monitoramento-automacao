@@ -1,0 +1,393 @@
+﻿{
+  "annotations": { "list": [] },
+  "editable": true,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["containers", "health", "infrastructure"],
+  "title": "Container Health",
+  "uid": "container-health-austa",
+  "version": 1,
+  "panels": [
+
+    { "collapsed": false, "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0}, "id": 1, "title": "Autorizacao Convenio", "type": "row" },
+
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"color": "red", "index": 1, "text": "DOWN"}, "1": {"color": "green", "index": 0, "text": "UP"}}, "type": "value"}],
+          "noValue": "DOWN",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        }, "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 8, "x": 0, "y": 1}, "id": 2,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "clamp_max(count(container_memory_usage_bytes{job=\"cadvisor\", name=\"autorizacao-polling-pa\"}) or vector(0), 1)", "instant": true, "refId": "A"}],
+      "title": "autorizacao-polling-pa", "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"color": "red", "index": 1, "text": "DOWN"}, "1": {"color": "green", "index": 0, "text": "UP"}}, "type": "value"}],
+          "noValue": "DOWN",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        }, "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 8, "x": 8, "y": 1}, "id": 3,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "clamp_max(count(container_memory_usage_bytes{job=\"cadvisor\", name=\"convenio_selenoid\"}) or vector(0), 1)", "instant": true, "refId": "A"}],
+      "title": "convenio_selenoid", "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"color": "red", "index": 1, "text": "DOWN"}, "1": {"color": "green", "index": 0, "text": "UP"}}, "type": "value"}],
+          "noValue": "DOWN",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        }, "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 8, "x": 16, "y": 1}, "id": 4,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "clamp_max(count(container_memory_usage_bytes{job=\"cadvisor\", name=\"convenio_selenoid_ui\"}) or vector(0), 1)", "instant": true, "refId": "A"}],
+      "title": "convenio_selenoid_ui", "type": "stat"
+    },
+
+    { "collapsed": false, "gridPos": {"h": 1, "w": 24, "x": 0, "y": 5}, "id": 10, "title": "Maezo Workers", "type": "row" },
+
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"color": "red", "index": 1, "text": "DOWN"}, "1": {"color": "green", "index": 0, "text": "UP"}}, "type": "value"}],
+          "noValue": "DOWN",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        }, "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 6}, "id": 11,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "clamp_max(count(container_memory_usage_bytes{job=\"cadvisor\", name=\"maezo-workers-cib7-1\"}) or vector(0), 1)", "instant": true, "refId": "A"}],
+      "title": "cib7", "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"color": "red", "index": 1, "text": "DOWN"}, "1": {"color": "green", "index": 0, "text": "UP"}}, "type": "value"}],
+          "noValue": "DOWN",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        }, "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 6}, "id": 12,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "clamp_max(count(container_memory_usage_bytes{job=\"cadvisor\", name=\"maezo-workers-workers_rc-1\"}) or vector(0), 1)", "instant": true, "refId": "A"}],
+      "title": "workers_rc", "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"color": "red", "index": 1, "text": "DOWN"}, "1": {"color": "green", "index": 0, "text": "UP"}}, "type": "value"}],
+          "noValue": "DOWN",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        }, "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 6}, "id": 13,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "clamp_max(count(container_memory_usage_bytes{job=\"cadvisor\", name=\"maezo-workers-workers_co-1\"}) or vector(0), 1)", "instant": true, "refId": "A"}],
+      "title": "workers_co", "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"color": "red", "index": 1, "text": "DOWN"}, "1": {"color": "green", "index": 0, "text": "UP"}}, "type": "value"}],
+          "noValue": "DOWN",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        }, "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 6}, "id": 14,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "clamp_max(count(container_memory_usage_bytes{job=\"cadvisor\", name=\"maezo-workers-workers_pa-1\"}) or vector(0), 1)", "instant": true, "refId": "A"}],
+      "title": "workers_pa", "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"color": "red", "index": 1, "text": "DOWN"}, "1": {"color": "green", "index": 0, "text": "UP"}}, "type": "value"}],
+          "noValue": "DOWN",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        }, "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 10}, "id": 15,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "clamp_max(count(container_memory_usage_bytes{job=\"cadvisor\", name=\"maezo-workers-workers_ps-1\"}) or vector(0), 1)", "instant": true, "refId": "A"}],
+      "title": "workers_ps", "type": "stat"
+    },
+
+    { "collapsed": false, "gridPos": {"h": 1, "w": 24, "x": 0, "y": 14}, "id": 20, "title": "Maezo Infra", "type": "row" },
+
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"color": "red", "index": 1, "text": "DOWN"}, "1": {"color": "green", "index": 0, "text": "UP"}}, "type": "value"}],
+          "noValue": "DOWN",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        }, "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 12, "x": 0, "y": 15}, "id": 21,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "clamp_max(count(container_memory_usage_bytes{job=\"cadvisor\", name=\"maezo-infra-postgres-1\"}) or vector(0), 1)", "instant": true, "refId": "A"}],
+      "title": "maezo-infra-postgres", "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"color": "red", "index": 1, "text": "DOWN"}, "1": {"color": "green", "index": 0, "text": "UP"}}, "type": "value"}],
+          "noValue": "DOWN",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        }, "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 12, "x": 12, "y": 15}, "id": 22,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "clamp_max(count(container_memory_usage_bytes{job=\"cadvisor\", name=\"maezo-infra-kafka-1\"}) or vector(0), 1)", "instant": true, "refId": "A"}],
+      "title": "maezo-infra-kafka", "type": "stat"
+    },
+
+    { "collapsed": false, "gridPos": {"h": 1, "w": 24, "x": 0, "y": 19}, "id": 30, "title": "Metabase", "type": "row" },
+
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"color": "red", "index": 1, "text": "DOWN"}, "1": {"color": "green", "index": 0, "text": "UP"}}, "type": "value"}],
+          "noValue": "DOWN",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        }, "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 12, "x": 0, "y": 20}, "id": 31,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "clamp_max(count(container_memory_usage_bytes{job=\"cadvisor\", name=\"metabase_postgres\"}) or vector(0), 1)", "instant": true, "refId": "A"}],
+      "title": "metabase_postgres", "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"color": "red", "index": 1, "text": "DOWN"}, "1": {"color": "green", "index": 0, "text": "UP"}}, "type": "value"}],
+          "noValue": "DOWN",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        }, "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 12, "x": 12, "y": 20}, "id": 32,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "clamp_max(count(container_memory_usage_bytes{job=\"cadvisor\", name=\"47c682a00121_metabase_prd\"}) or vector(0), 1)", "instant": true, "refId": "A"}],
+      "title": "metabase_prd", "type": "stat"
+    },
+
+    { "collapsed": false, "gridPos": {"h": 1, "w": 24, "x": 0, "y": 24}, "id": 50, "panels": [], "title": "Quick CPU / Mem / Disk", "type": "row" },
+
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "description": "Overall CPU busy percentage (averaged across all cores)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"}, "decimals": 1,
+          "mappings": [{"options": {"match": "null", "result": {"text": "N/A"}}, "type": "special"}],
+          "max": 100, "min": 0,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "rgba(50, 172, 45, 0.97)", "value": null}, {"color": "rgba(237, 129, 40, 0.89)", "value": 85}, {"color": "rgba(245, 54, 54, 0.9)", "value": 95}]},
+          "unit": "percent"
+        }, "overrides": []
+      },
+      "gridPos": {"h": 6, "w": 4, "x": 0, "y": 25}, "id": 51,
+      "options": {"minVizHeight": 75, "minVizWidth": 75, "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showThresholdLabels": false, "showThresholdMarkers": true, "sizing": "auto"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{mode=\"idle\",instance=\"host.docker.internal:9100\",job=\"node\"}[$__rate_interval])))", "instant": true, "refId": "A"}],
+      "title": "CPU Busy", "type": "gauge"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "description": "System load over all CPU cores together",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"}, "decimals": 1,
+          "mappings": [{"options": {"match": "null", "result": {"text": "N/A"}}, "type": "special"}],
+          "max": 100, "min": 0,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "rgba(50, 172, 45, 0.97)", "value": null}, {"color": "rgba(237, 129, 40, 0.89)", "value": 85}, {"color": "rgba(245, 54, 54, 0.9)", "value": 95}]},
+          "unit": "percent"
+        }, "overrides": []
+      },
+      "gridPos": {"h": 6, "w": 4, "x": 4, "y": 25}, "id": 52,
+      "options": {"minVizHeight": 75, "minVizWidth": 75, "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showThresholdLabels": false, "showThresholdMarkers": true, "sizing": "auto"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "scalar(node_load1{instance=\"host.docker.internal:9100\",job=\"node\"}) * 100 / count(count(node_cpu_seconds_total{instance=\"host.docker.internal:9100\",job=\"node\"}) by (cpu))", "instant": true, "refId": "A"}],
+      "title": "Sys Load", "type": "gauge"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "description": "Real RAM usage excluding cache and reclaimable memory",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"}, "decimals": 1,
+          "mappings": [],
+          "max": 100, "min": 0,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "rgba(50, 172, 45, 0.97)", "value": null}, {"color": "rgba(237, 129, 40, 0.89)", "value": 80}, {"color": "rgba(245, 54, 54, 0.9)", "value": 90}]},
+          "unit": "percent"
+        }, "overrides": []
+      },
+      "gridPos": {"h": 6, "w": 4, "x": 8, "y": 25}, "id": 53,
+      "options": {"minVizHeight": 75, "minVizWidth": 75, "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showThresholdLabels": false, "showThresholdMarkers": true, "sizing": "auto"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "clamp_min((1 - (node_memory_MemAvailable_bytes{instance=\"host.docker.internal:9100\",job=\"node\"} / node_memory_MemTotal_bytes{instance=\"host.docker.internal:9100\",job=\"node\"})) * 100, 0)", "instant": true, "refId": "B"}],
+      "title": "RAM Used", "type": "gauge"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "description": "Percentage of swap space currently used by the system",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"}, "decimals": 1,
+          "mappings": [{"options": {"match": "null", "result": {"text": "N/A"}}, "type": "special"}],
+          "max": 100, "min": 0,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "rgba(50, 172, 45, 0.97)", "value": null}, {"color": "rgba(237, 129, 40, 0.89)", "value": 10}, {"color": "rgba(245, 54, 54, 0.9)", "value": 25}]},
+          "unit": "percent"
+        }, "overrides": []
+      },
+      "gridPos": {"h": 6, "w": 4, "x": 12, "y": 25}, "id": 54,
+      "options": {"minVizHeight": 75, "minVizWidth": 75, "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showThresholdLabels": false, "showThresholdMarkers": true, "sizing": "auto"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "(node_memory_SwapTotal_bytes{instance=\"host.docker.internal:9100\",job=\"node\"} > bool 0) * ((node_memory_SwapTotal_bytes{instance=\"host.docker.internal:9100\",job=\"node\"} - node_memory_SwapFree_bytes{instance=\"host.docker.internal:9100\",job=\"node\"}) / (node_memory_SwapTotal_bytes{instance=\"host.docker.internal:9100\",job=\"node\"})) * 100", "instant": true, "refId": "A"}],
+      "title": "SWAP Used", "type": "gauge"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "description": "Used Root FS",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"}, "decimals": 1,
+          "mappings": [{"options": {"match": "null", "result": {"text": "N/A"}}, "type": "special"}],
+          "max": 100, "min": 0,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "rgba(50, 172, 45, 0.97)", "value": null}, {"color": "rgba(237, 129, 40, 0.89)", "value": 80}, {"color": "rgba(245, 54, 54, 0.9)", "value": 90}]},
+          "unit": "percent"
+        }, "overrides": []
+      },
+      "gridPos": {"h": 6, "w": 4, "x": 16, "y": 25}, "id": 55,
+      "options": {"minVizHeight": 75, "minVizWidth": 75, "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showThresholdLabels": false, "showThresholdMarkers": true, "sizing": "auto"},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "((node_filesystem_size_bytes{instance=\"host.docker.internal:9100\",job=\"node\",mountpoint=\"/\",fstype!=\"rootfs\"} - node_filesystem_avail_bytes{instance=\"host.docker.internal:9100\",job=\"node\",mountpoint=\"/\",fstype!=\"rootfs\"}) / node_filesystem_size_bytes{instance=\"host.docker.internal:9100\",job=\"node\",mountpoint=\"/\",fstype!=\"rootfs\"}) * 100", "instant": true, "refId": "A"}],
+      "title": "Root FS Used", "type": "gauge"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "description": "Resource pressure via PSI",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"}, "decimals": 1,
+          "links": [], "mappings": [],
+          "max": 1, "min": 0,
+          "thresholds": {"mode": "percentage", "steps": [{"color": "green", "value": null}, {"color": "dark-yellow", "value": 70}, {"color": "dark-red", "value": 90}]},
+          "unit": "percentunit"
+        }, "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 4, "x": 20, "y": 25}, "id": 56,
+      "options": {"displayMode": "basic", "legend": {"calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false}, "maxVizHeight": 300, "minVizHeight": 10, "minVizWidth": 0, "namePlacement": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showUnfilled": true, "sizing": "auto", "text": {}, "valueMode": "color"},
+      "targets": [
+        {"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "rate(node_pressure_cpu_waiting_seconds_total{instance=\"host.docker.internal:9100\",job=\"node\"}[$__rate_interval])", "instant": true, "legendFormat": "CPU", "refId": "A"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "rate(node_pressure_memory_waiting_seconds_total{instance=\"host.docker.internal:9100\",job=\"node\"}[$__rate_interval])", "instant": true, "legendFormat": "Mem", "refId": "B"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "rate(node_pressure_io_waiting_seconds_total{instance=\"host.docker.internal:9100\",job=\"node\"}[$__rate_interval])", "instant": true, "legendFormat": "I/O", "refId": "C"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "rate(node_pressure_irq_stalled_seconds_total{instance=\"host.docker.internal:9100\",job=\"node\"}[$__rate_interval])", "instant": true, "legendFormat": "Irq", "refId": "D"}
+      ],
+      "title": "Pressure", "type": "bargauge"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"match": "null", "result": {"text": "N/A"}}, "type": "special"}],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+          "unit": "short"
+        }, "overrides": []
+      },
+      "gridPos": {"h": 2, "w": 4, "x": 0, "y": 31}, "id": 57,
+      "options": {"colorMode": "none", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto", "wideLayout": true},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "count(count(node_cpu_seconds_total{instance=\"host.docker.internal:9100\",job=\"node\"}) by (cpu))", "instant": true, "refId": "A"}],
+      "title": "CPU Cores", "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"}, "decimals": 1,
+          "mappings": [{"options": {"match": "null", "result": {"text": "N/A"}}, "type": "special"}],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 80}]},
+          "unit": "s"
+        }, "overrides": []
+      },
+      "gridPos": {"h": 2, "w": 4, "x": 4, "y": 31}, "id": 58,
+      "options": {"colorMode": "none", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto", "wideLayout": true},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "node_time_seconds{instance=\"host.docker.internal:9100\",job=\"node\"} - node_boot_time_seconds{instance=\"host.docker.internal:9100\",job=\"node\"}", "instant": true, "refId": "A"}],
+      "title": "Uptime", "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"}, "decimals": 0,
+          "mappings": [{"options": {"match": "null", "result": {"text": "N/A"}}, "type": "special"}],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 80}]},
+          "unit": "bytes"
+        }, "overrides": []
+      },
+      "gridPos": {"h": 2, "w": 4, "x": 8, "y": 31}, "id": 59,
+      "options": {"colorMode": "none", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto", "wideLayout": true},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "node_memory_MemTotal_bytes{instance=\"host.docker.internal:9100\",job=\"node\"}", "instant": true, "refId": "A"}],
+      "title": "RAM Total", "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"}, "decimals": 0,
+          "mappings": [{"options": {"match": "null", "result": {"text": "N/A"}}, "type": "special"}],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 80}]},
+          "unit": "bytes"
+        }, "overrides": []
+      },
+      "gridPos": {"h": 2, "w": 4, "x": 12, "y": 31}, "id": 60,
+      "options": {"colorMode": "none", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto", "wideLayout": true},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "node_memory_SwapTotal_bytes{instance=\"host.docker.internal:9100\",job=\"node\"}", "instant": true, "refId": "A"}],
+      "title": "SWAP Total", "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus-austa"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"}, "decimals": 0,
+          "mappings": [{"options": {"match": "null", "result": {"text": "N/A"}}, "type": "special"}],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "rgba(50, 172, 45, 0.97)", "value": null}, {"color": "rgba(237, 129, 40, 0.89)", "value": 70}, {"color": "rgba(245, 54, 54, 0.9)", "value": 90}]},
+          "unit": "bytes"
+        }, "overrides": []
+      },
+      "gridPos": {"h": 2, "w": 4, "x": 16, "y": 31}, "id": 61,
+      "options": {"colorMode": "none", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto", "wideLayout": true},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-austa"}, "expr": "node_filesystem_size_bytes{instance=\"host.docker.internal:9100\",job=\"node\",mountpoint=\"/\",fstype!=\"rootfs\"}", "instant": true, "refId": "A"}],
+      "title": "RootFS Total", "type": "stat"
+    }
+
+  ]
+}
