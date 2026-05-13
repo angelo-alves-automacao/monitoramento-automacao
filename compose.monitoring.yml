@@ -108,10 +108,11 @@ services:
       PG_PASSWORD:     ${AUSTA_PG_PASSWORD}
       SYNC_INTERVAL:   ${SYNC_INTERVAL:-300}
       BATCH_SIZE:      ${BATCH_SIZE:-500}
-      ORACLE_CLIENT_LIB: /opt/oracle/instantclient
+      ORACLE_INSTANT_CLIENT_DIR: /opt/oracle/instantclient
+      LD_LIBRARY_PATH: /opt/oracle/instantclient
     volumes:
       - ./data/sync-logs:/app/logs
-      - /home/austa/instantclient_23_8:/opt/oracle/instantclient:ro
+      - /home/austa/instantclient_23_8/usr/lib/oracle/23/client64/lib:/opt/oracle/instantclient:ro
     networks:
       - austa-net
     depends_on:

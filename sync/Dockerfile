@@ -3,7 +3,8 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # libaio1 necessário para Oracle Instant Client (thick mode)
-RUN apt-get update && apt-get install -y --no-install-recommends libaio1 \
+RUN apt-get update && apt-get install -y --no-install-recommends libaio1t64 \
+    && ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .

@@ -17,10 +17,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Thick mode: usa Oracle Client do host (suporta hash legado DPY-3015)
-_ora_lib = os.getenv("ORACLE_CLIENT_LIB")
-if _ora_lib:
-    oracledb.init_oracle_client(lib_dir=_ora_lib)
+_thick_initialized = False
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -209,6 +206,24 @@ def clean_row(row):
     return [val.read() if hasattr(val, "read") else val for val in row]
 
 
+def connect_oracle() -> oracledb.Connection:
+    """Tenta thin; faz fallback para thick (ORACLE_INSTANT_CLIENT_DIR) se DPY-3015."""
+    global _thick_initialized
+    try:
+        return oracledb.connect(**ORACLE_CONFIG)
+    except Exception as e:
+        msg = str(e)
+        needs_thick = any(code in msg for code in ("DPY-3015", "DPY-2021", "DPY-3001", "password verifier"))
+        if needs_thick and not _thick_initialized:
+            lib_dir = os.environ.get("ORACLE_INSTANT_CLIENT_DIR")
+            if lib_dir:
+                oracledb.init_oracle_client(lib_dir=lib_dir)
+                _thick_initialized = True
+                log.info("Oracle Instant Client (thick mode) inicializado: %s", lib_dir)
+                return oracledb.connect(**ORACLE_CONFIG)
+        raise
+
+
 # ── PostgreSQL helpers ────────────────────────────────────────────────────────
 def build_upsert_sql(table_name, pk, columns, update_cols, strategy):
     pg_table     = f"{PG_SCHEMA}.{table_name.lower()}"
@@ -341,7 +356,7 @@ def main():
         ora_conn = None
         pg_conn  = None
         try:
-            ora_conn = oracledb.connect(**ORACLE_CONFIG)
+            ora_conn = connect_oracle()
             pg_conn  = psycopg2.connect(PG_DSN)
             sync_all(ora_conn, pg_conn)
         except Exception as e:
