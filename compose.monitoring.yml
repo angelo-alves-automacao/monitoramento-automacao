@@ -123,10 +123,13 @@ services:
     restart: unless-stopped
     network_mode: host
     pid: host
-    command:
-      - "--path.rootfs=/host"
     volumes:
-      - /:/host:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
 
   # ── cAdvisor (métricas de containers) ────────────────────────────────────
   cadvisor:
