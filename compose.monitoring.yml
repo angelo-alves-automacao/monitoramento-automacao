@@ -110,6 +110,7 @@ services:
       BATCH_SIZE:      ${BATCH_SIZE:-500}
       ORACLE_INSTANT_CLIENT_DIR: /opt/oracle/instantclient
       LD_LIBRARY_PATH: /opt/oracle/instantclient
+      TZ: America/Sao_Paulo
     volumes:
       - ./data/sync-logs:/app/logs
       - /home/austa/instantclient_23_8/usr/lib/oracle/23/client64/lib:/opt/oracle/instantclient:ro
