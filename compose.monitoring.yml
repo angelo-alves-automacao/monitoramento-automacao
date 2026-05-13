@@ -34,8 +34,6 @@ services:
     volumes:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./data/prometheus:/prometheus
-    extra_hosts:
-      - "host.docker.internal:host-gateway"   # necessário no Linux para scrape do node_exporter (host mode)
     networks:
       - austa-net
       - maestro_local
@@ -121,12 +119,12 @@ services:
     image: prom/node-exporter:v1.8.2
     container_name: austa-node-exporter
     restart: unless-stopped
-    network_mode: host
-    pid: host
     command:
       - "--path.rootfs=/host"
     volumes:
       - /:/host:ro,rslave
+    networks:
+      - austa-net
 
   # ── cAdvisor (métricas de containers) ────────────────────────────────────
   cadvisor:
@@ -138,7 +136,6 @@ services:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
     networks:
       - austa-net
 
