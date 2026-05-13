@@ -17,6 +17,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Thick mode: usa Oracle Client do host (suporta hash legado DPY-3015)
+_ora_lib = os.getenv("ORACLE_CLIENT_LIB")
+if _ora_lib:
+    oracledb.init_oracle_client(lib_dir=_ora_lib)
+
 # ── Logging ───────────────────────────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
