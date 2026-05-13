@@ -34,6 +34,8 @@ services:
     volumes:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./data/prometheus:/prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # necessário no Linux para scrape do node_exporter (host mode)
     networks:
       - austa-net
       - maestro_local
@@ -114,39 +116,33 @@ services:
       austa-postgres:
         condition: service_healthy
 
-  # ── TRANSIÇÃO: node_exporter e cadvisor ──────────────────────────────────
-  # Durante a transição, este stack reutiliza os exporters do MAEZO
-  # via rede maestro_local (node_exporter em host.docker.internal:9100,
-  # cadvisor em cadvisor:8080, kafka_exporter:9308, postgres_exporter:9187).
-  #
-  # Quando remover o compose.observability.yml do MAEZO, descomentar abaixo:
-  #
-  # node_exporter:
-  #   image: prom/node-exporter:v1.8.2
-  #   container_name: austa-node-exporter
-  #   restart: unless-stopped
-  #   network_mode: host
-  #   pid: host
-  #   command:
-  #     - "--path.rootfs=/host"
-  #   volumes:
-  #     - /:/host:ro,rslave
-  #
-  # cadvisor:
-  #   image: gcr.io/cadvisor/cadvisor:v0.49.1
-  #   container_name: austa-cadvisor
-  #   restart: unless-stopped
-  #   ports:
-  #     - "9082:8080"
-  #   privileged: true
-  #   volumes:
-  #     - /:/rootfs:ro
-  #     - /var/run:/var/run:ro
-  #     - /sys:/sys:ro
-  #     - /var/lib/docker/:/var/lib/docker:ro
-  #   networks:
-  #     - austa-net
-  #
+  # ── node_exporter (métricas do host: CPU, RAM, disco) ────────────────────
+  node_exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: austa-node-exporter
+    restart: unless-stopped
+    network_mode: host
+    pid: host
+    command:
+      - "--path.rootfs=/host"
+    volumes:
+      - /:/host:ro,rslave
+
+  # ── cAdvisor (métricas de containers) ────────────────────────────────────
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: austa-cadvisor
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - austa-net
+
+  # ── kafka_exporter ────────────────────────────────────────────────────────
   # kafka_exporter:
   #   image: danielqsj/kafka-exporter:v1.7.0
   #   container_name: austa-kafka-exporter
@@ -155,18 +151,19 @@ services:
   #   ports:
   #     - "9309:9308"
   #   networks:
-  #     - austa-net
+  #     - maestro_local
   #
+  # postgres_exporter (MAEZO):
   # postgres_exporter:
   #   image: prometheuscommunity/postgres-exporter:v0.15.0
   #   container_name: austa-postgres-exporter
   #   restart: unless-stopped
   #   environment:
-  #     DATA_SOURCE_NAME: "postgresql://austa:${AUSTA_PG_PASSWORD}@austa-postgres:5432/austa?sslmode=disable"
+  #     DATA_SOURCE_NAME: "postgresql://maestro:${MAEZO_PG_PASSWORD}@postgres:5432/cibseven?sslmode=disable"
   #   ports:
   #     - "9188:9187"
   #   networks:
-  #     - austa-net
+  #     - maestro_local
 
 networks:
   austa-net:

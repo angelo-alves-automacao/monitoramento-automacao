@@ -1,14 +1,15 @@
 # =============================================================================
 # AUSTA — Prometheus (stack independente de monitoramento)
 #
-# Porta externa: 9091 (MAEZO ocupa 9090 durante a transição)
+# Porta externa: 9091 (MAEZO ocupa 9090)
 #
-# TRANSIÇÃO: exporters reutilizados do MAEZO via maestro_local
-#   kafka_exporter:9308, postgres_exporter:9187, cadvisor:8080
-#   node_exporter: host.docker.internal:9100
+# Exporters próprios (neste compose):
+#   node_exporter: host.docker.internal:9100  (host mode)
+#   cadvisor:      cadvisor:8080              (austa-net)
 #
-# Após remover compose.observability.yml do MAEZO:
-#   Subir os exporters neste compose e ajustar targets abaixo
+# Exporters do MAEZO (via maestro_local — requerem MAEZO rodando):
+#   kafka_exporter:9308, postgres_exporter:9187
+#   workers_rc/co/pa/ps:8000, cib7_exporter:7979
 # =============================================================================
 
 global:
@@ -31,7 +32,7 @@ scrape_configs:
         labels:
           service: prometheus-austa
 
-  # ── Workers MAEZO (CIB Seven External Task) ────────────────────────────────
+  # ── Workers MAEZO (CIB Seven External Task) — requer MAEZO rodando ─────────
   - job_name: maezo_workers
     scrape_interval: 10s
     metrics_path: /metrics
@@ -49,7 +50,7 @@ scrape_configs:
         target_label: domain
         replacement: '${1}'
 
-  # ── Contract Extraction API ────────────────────────────────────────────────
+  # ── Contract Extraction API — requer MAEZO rodando ────────────────────────
   - job_name: maezo_ce_api
     scrape_interval: 15s
     metrics_path: /metrics
@@ -59,7 +60,7 @@ scrape_configs:
           component: api
           service:   contract_extraction
 
-  # ── CIB Seven BPM Engine (via json_exporter) ──────────────────────────────
+  # ── CIB Seven BPM Engine (via json_exporter) — requer MAEZO rodando ───────
   - job_name: cib7_bpm
     scrape_interval: 15s
     metrics_path: /probe
@@ -90,29 +91,7 @@ scrape_configs:
       - target_label: __address__
         replacement: "cib7_exporter:7979"
 
-  # ── Kafka (exporter do MAEZO via maestro_local) ────────────────────────────
-  # Após migração: trocar para austa-kafka-exporter:9308
-  - job_name: kafka
-    scrape_interval: 30s
-    static_configs:
-      - targets: ["kafka_exporter:9308"]
-        labels:
-          component: kafka
-          service:   kafka_exporter
-
-  # ── PostgreSQL (exporter do MAEZO via maestro_local) ──────────────────────
-  # Após migração: trocar para austa-postgres-exporter:9187
-  - job_name: postgres
-    scrape_interval: 30s
-    static_configs:
-      - targets: ["postgres_exporter:9187"]
-        labels:
-          component: database
-          service:   postgresql
-
-  # ── Node Exporter (host — único por servidor) ──────────────────────────────
-  # Não duplicar: usa o do MAEZO via host.docker.internal
-  # Após migração: trocar para localhost:9100 (node_exporter em host mode)
+  # ── Node Exporter (host) ──────────────────────────────────────────────────
   - job_name: node
     scrape_interval: 15s
     static_configs:
@@ -121,8 +100,7 @@ scrape_configs:
           component: infrastructure
           service:   node_exporter
 
-  # ── cAdvisor (container do MAEZO via maestro_local) ───────────────────────
-  # Após migração: trocar para austa-cadvisor:8080
+  # ── cAdvisor (containers) ─────────────────────────────────────────────────
   - job_name: cadvisor
     scrape_interval: 15s
     static_configs:
@@ -130,3 +108,21 @@ scrape_configs:
         labels:
           component: infrastructure
           service:   cadvisor
+
+  # ── Kafka exporter — descomentar quando kafka_exporter estiver no compose ──
+  # - job_name: kafka
+  #   scrape_interval: 30s
+  #   static_configs:
+  #     - targets: ["kafka_exporter:9308"]
+  #       labels:
+  #         component: kafka
+  #         service:   kafka_exporter
+
+  # ── PostgreSQL exporter — descomentar quando postgres_exporter estiver ativo
+  # - job_name: postgres
+  #   scrape_interval: 30s
+  #   static_configs:
+  #     - targets: ["postgres_exporter:9187"]
+  #       labels:
+  #         component: database
+  #         service:   postgresql

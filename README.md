@@ -12,22 +12,25 @@ no MAEZO.
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │  AUSTA Monitoring Stack (este compose)                                       │
 │                                                                              │
-│  grafana:3001      ── dashboards: MAEZO, RPA Healthcare, RPA Operations      │
-│  prometheus:9091   ── scrape: workers, cib7, kafka, postgres, node, cadvisor │
-│  oracle_sync       ── Oracle ROBO_RPA → PostgreSQL rpa_sync (5min)          │
-│                                                                              │
-│  Durante a transição: reutiliza os exporters do MAEZO via maestro_local      │
-│    kafka_exporter:9308, postgres_exporter:9187, cadvisor:8080                │
-│    node_exporter: host.docker.internal:9100                                  │
+│  grafana:3001       ── dashboards: MAEZO, RPA Healthcare, RPA Operations     │
+│  prometheus:9091    ── scrape: workers, cib7, node, cadvisor                 │
+│  austa-postgres     ── banco próprio (schema rpa_sync)                       │
+│  oracle_sync        ── Oracle ROBO_RPA → austa-postgres rpa_sync (5min)     │
+│  node_exporter      ── métricas do host (CPU, RAM, disco) — network: host   │
+│  cadvisor           ── métricas de containers                                │
 └─────────────────────────────────────────┬────────────────────────────────────┘
-                                          │ rede maestro_local
+                                          │ rede maestro_local (opcional)
 ┌─────────────────────────────────────────▼────────────────────────────────────┐
-│  MAEZO Stack (Healthcare-Orchest)                                            │
+│  MAEZO Stack (Healthcare-Orchest) — monitoramento não depende deste stack    │
 │  grafana:3000  prometheus:9090  postgres:5432  kafka:9092  cib7:8080         │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
 **Princípio:** se o MAEZO cair, o monitoramento continua rodando.
+
+A rede `maestro_local` é necessária apenas para scrapar workers/cib7 do MAEZO e
+para o datasource opcional `CIB Seven DB`. Se o MAEZO estiver fora, apenas esses
+painéis ficam sem dados — o restante do stack funciona normalmente.
 
 ---
 
@@ -55,7 +58,7 @@ monitoramento-automacao/
 │       └── provisioning/
 │           ├── datasources/
 │           │   ├── prometheus.yaml         ← uid: prometheus-austa
-│           │   ├── postgres_cibseven.yaml  ← uid: cibseven-pg
+│           │   ├── postgres_cibseven.yaml  ← uid: cibseven-pg (opcional, MAEZO)
 │           │   └── rpa_sync.yaml           ← uid: rpa-sync-pg
 │           ├── dashboards/
 │           │   ├── dashboards.yml
@@ -84,9 +87,9 @@ monitoramento-automacao/
 ## Pré-requisitos
 
 - Docker + Docker Compose v2
-- Rede `maestro_local` existente (criada pelo MAEZO ao subir)
-- PostgreSQL do MAEZO acessível em `postgres:5432` na rede
 - Acesso TCP ao Oracle Tasy na porta 1521
+- Rede `maestro_local` existente **apenas** se o MAEZO estiver rodando e você
+  quiser scrapar os workers/cib7 e usar o datasource `CIB Seven DB`
 
 ---
 
@@ -101,26 +104,30 @@ cp .env.example .env
 
 Variáveis obrigatórias:
 
-| Variável          | Descrição                                       |
-|-------------------|-------------------------------------------------|
-| `GF_ADMIN_PASSWORD` | Senha do admin do Grafana                     |
-| `ORACLE_USER`     | Usuário Oracle com SELECT em ROBO_RPA           |
-| `ORACLE_PASSWORD` | Senha Oracle                                    |
-| `ORACLE_HOST`     | IP ou hostname do Oracle                        |
-| `ORACLE_SERVICE`  | Nome do service (ex: TASY)                      |
-| `PG_PASSWORD`     | Senha do PostgreSQL do MAEZO                    |
+| Variável            | Descrição                                       |
+|---------------------|-------------------------------------------------|
+| `GF_ADMIN_PASSWORD` | Senha do admin do Grafana                       |
+| `AUSTA_PG_PASSWORD` | Senha do PostgreSQL próprio do monitoramento    |
+| `ORACLE_USER`       | Usuário Oracle com SELECT em ROBO_RPA           |
+| `ORACLE_PASSWORD`   | Senha Oracle                                    |
+| `ORACLE_HOST`       | IP ou hostname do Oracle                        |
+| `ORACLE_SERVICE`    | Nome do service (ex: TASY)                      |
 
-### 2. Criar o schema rpa_sync no PostgreSQL do MAEZO
+Variáveis opcionais:
 
-Rodar os scripts **na ordem** no banco `cibseven`:
+| Variável            | Descrição                                       |
+|---------------------|-------------------------------------------------|
+| `MAEZO_PG_PASSWORD` | Senha do PostgreSQL do MAEZO (dashboards BPMN)  |
+| `N8N_GRAFANA_WEBHOOK_URL` | Webhook Zoho Cliq para alertas            |
+| `GRAFANA_ALERT_EMAIL` | E-mails de alerta separados por vírgula       |
+
+### 2. Criar o schema rpa_sync no PostgreSQL do monitoramento
+
+Rodar os scripts **na ordem** no banco `austa`:
 
 ```bash
-# Via psql direto no container do MAEZO
-docker exec -i maezo-infra-postgres-1 psql -U maestro -d cibseven \
-  < sql/01_schema.sql
-
-docker exec -i maezo-infra-postgres-1 psql -U maestro -d cibseven \
-  < sql/02_tables.sql
+docker exec -i austa-postgres psql -U austa -d austa < sql/01_schema.sql
+docker exec -i austa-postgres psql -U austa -d austa < sql/02_tables.sql
 ```
 
 ### 3. Subir o stack
@@ -160,7 +167,7 @@ docker logs -f austa-oracle-sync
 ## Oracle → PostgreSQL Sync
 
 O container `oracle_sync` sincroniza as tabelas do schema `ROBO_RPA` do Oracle Tasy
-para o schema `rpa_sync` no PostgreSQL do MAEZO a cada 5 minutos (configurável via
+para o schema `rpa_sync` no banco `austa-postgres` a cada 5 minutos (configurável via
 `SYNC_INTERVAL`).
 
 ### Estratégias por tabela
@@ -178,7 +185,7 @@ para o schema `rpa_sync` no PostgreSQL do MAEZO a cada 5 minutos (configurável 
 docker logs -f austa-oracle-sync
 
 # Watermarks no PostgreSQL
-docker exec maezo-infra-postgres-1 psql -U maestro -d cibseven -c \
+docker exec austa-postgres psql -U austa -d austa -c \
   "SELECT table_name, last_id, last_updated_at, rows_last, NOW() - synced_at AS atraso FROM rpa_sync._watermarks ORDER BY synced_at DESC;"
 ```
 
@@ -210,20 +217,6 @@ GRAFANA_ALERT_EMAIL=ti@austa.com.br,oncall@austa.com.br
 
 ---
 
-## Transição: após remover o observability do MAEZO
-
-Quando remover o `compose.observability.yml` do MAEZO:
-
-1. Descomentar `node_exporter`, `cadvisor`, `kafka_exporter`, `postgres_exporter`
-   no `compose.monitoring.yml`
-2. Atualizar os targets no `config/prometheus/prometheus.yml`:
-   - `cadvisor:8080` → `austa-cadvisor:8080`
-   - `kafka_exporter:9308` → `austa-kafka-exporter:9308`
-   - `postgres_exporter:9187` → `austa-postgres-exporter:9187`
-   - `host.docker.internal:9100` → `localhost:9100` (node_exporter em host mode)
-
----
-
 ## Operação
 
 ```bash
@@ -238,4 +231,9 @@ curl -X POST http://localhost:9091/-/reload
 
 # Status dos containers
 docker compose -f compose.monitoring.yml ps
+
+# Logs de um serviço
+docker logs -f austa-grafana
+docker logs -f austa-prometheus
+docker logs -f austa-oracle-sync
 ```
