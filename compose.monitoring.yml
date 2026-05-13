@@ -34,6 +34,8 @@ services:
     volumes:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./data/prometheus:/prometheus
+    extra_hosts:
+      - "austa-host:host-gateway"
     networks:
       - austa-net
       - maestro_local
@@ -119,13 +121,12 @@ services:
     image: prom/node-exporter:v1.8.2
     container_name: austa-node-exporter
     restart: unless-stopped
+    network_mode: host
     pid: host
     command:
       - "--path.rootfs=/host"
     volumes:
       - /:/host:ro
-    networks:
-      - austa-net
 
   # ── cAdvisor (métricas de containers) ────────────────────────────────────
   cadvisor:

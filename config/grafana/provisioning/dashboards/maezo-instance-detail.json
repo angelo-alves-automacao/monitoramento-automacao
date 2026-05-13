@@ -1,4 +1,4 @@
-﻿{
+{
   "annotations": { "list": [] },
   "description": "Detalhes de instancias BPMN: atividades, external tasks, incidents, variaveis e timeline — dados direto do CIB Seven DB.",
   "editable": true,
