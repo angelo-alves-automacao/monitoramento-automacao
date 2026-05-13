@@ -1,5 +1,24 @@
 services:
 
+  # ── PostgreSQL próprio do monitoramento ───────────────────────────────────
+  austa-postgres:
+    image: postgres:16
+    container_name: austa-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       austa
+      POSTGRES_USER:     austa
+      POSTGRES_PASSWORD: ${AUSTA_PG_PASSWORD}
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - austa-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U austa -d austa"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ── Prometheus ────────────────────────────────────────────────────────────
   prometheus:
     image: prom/prometheus:v2.54.0
@@ -16,6 +35,7 @@ services:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./data/prometheus:/prometheus
     networks:
+      - austa-net
       - maestro_local
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
@@ -38,20 +58,27 @@ services:
       GF_USERS_ALLOW_SIGN_UP:     "false"
       GF_ANALYTICS_REPORTING_ENABLED: "false"
       # SMTP (opcional)
-      GF_SMTP_ENABLED:   ${GF_SMTP_ENABLED:-false}
-      GF_SMTP_HOST:      ${GF_SMTP_HOST:-}
-      GF_SMTP_FROM_ADDRESS: ${GF_SMTP_FROM:-}
+      GF_SMTP_ENABLED:      ${GF_SMTP_ENABLED:-false}
+      GF_SMTP_HOST:         ${GF_SMTP_HOST:-}
+      GF_SMTP_FROM_ADDRESS: ${GF_SMTP_FROM_ADDRESS:-}
+      GF_SMTP_PASSWORD:     ${GF_SMTP_PASSWORD:-}
       # Alertas
       N8N_GRAFANA_WEBHOOK_URL: ${N8N_GRAFANA_WEBHOOK_URL:-}
       GRAFANA_ALERT_EMAIL:     ${GRAFANA_ALERT_EMAIL:-}
-      # Datasources (senhas injetadas via env)
-      PG_PASSWORD: ${PG_PASSWORD:-maestro_local}
+      # Datasources — postgres próprio (rpa_sync)
+      AUSTA_PG_PASSWORD: ${AUSTA_PG_PASSWORD}
+      # Datasource opcional — postgres do MAEZO (dashboards BPMN)
+      # Só funciona quando o MAEZO está rodando; não impede o Grafana de subir
+      MAEZO_PG_PASSWORD: ${MAEZO_PG_PASSWORD:-maestro_local}
     volumes:
       - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./data/grafana:/var/lib/grafana
     networks:
-      - maestro_local
+      - austa-net
+      - maestro_local    # necessário apenas para o datasource cibseven-pg (MAEZO)
     depends_on:
+      austa-postgres:
+        condition: service_healthy
       prometheus:
         condition: service_healthy
     healthcheck:
@@ -72,17 +99,20 @@ services:
       ORACLE_HOST:     ${ORACLE_HOST}
       ORACLE_PORT:     ${ORACLE_PORT:-1521}
       ORACLE_SERVICE:  ${ORACLE_SERVICE}
-      PG_HOST:         ${PG_HOST:-postgres}
-      PG_PORT:         ${PG_PORT:-5432}
-      PG_DB:           ${PG_DB:-cibseven}
-      PG_USER:         ${PG_USER:-maestro}
-      PG_PASSWORD:     ${PG_PASSWORD:-maestro_local}
+      PG_HOST:         austa-postgres
+      PG_PORT:         5432
+      PG_DB:           austa
+      PG_USER:         austa
+      PG_PASSWORD:     ${AUSTA_PG_PASSWORD}
       SYNC_INTERVAL:   ${SYNC_INTERVAL:-300}
       BATCH_SIZE:      ${BATCH_SIZE:-500}
     volumes:
       - ./data/sync-logs:/app/logs
     networks:
-      - maestro_local
+      - austa-net
+    depends_on:
+      austa-postgres:
+        condition: service_healthy
 
   # ── TRANSIÇÃO: node_exporter e cadvisor ──────────────────────────────────
   # Durante a transição, este stack reutiliza os exporters do MAEZO
@@ -115,7 +145,7 @@ services:
   #     - /sys:/sys:ro
   #     - /var/lib/docker/:/var/lib/docker:ro
   #   networks:
-  #     - maestro_local
+  #     - austa-net
   #
   # kafka_exporter:
   #   image: danielqsj/kafka-exporter:v1.7.0
@@ -125,19 +155,21 @@ services:
   #   ports:
   #     - "9309:9308"
   #   networks:
-  #     - maestro_local
+  #     - austa-net
   #
   # postgres_exporter:
   #   image: prometheuscommunity/postgres-exporter:v0.15.0
   #   container_name: austa-postgres-exporter
   #   restart: unless-stopped
   #   environment:
-  #     DATA_SOURCE_NAME: "postgresql://maestro:${PG_PASSWORD}@postgres:5432/cibseven?sslmode=disable"
+  #     DATA_SOURCE_NAME: "postgresql://austa:${AUSTA_PG_PASSWORD}@austa-postgres:5432/austa?sslmode=disable"
   #   ports:
   #     - "9188:9187"
   #   networks:
-  #     - maestro_local
+  #     - austa-net
 
 networks:
+  austa-net:
+    driver: bridge      # rede interna — todos os serviços de monitoramento
   maestro_local:
-    external: true    # rede criada pelo MAEZO (compose do Healthcare-Orchest)
+    external: true      # rede do MAEZO — Prometheus scraping + datasource cibseven-pg

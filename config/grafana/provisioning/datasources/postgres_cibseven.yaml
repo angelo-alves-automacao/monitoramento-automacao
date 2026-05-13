@@ -1,7 +1,9 @@
 # =============================================================================
-# Grafana — Datasource: CIB Seven PostgreSQL
-# Acesso ao banco do MAEZO via rede maestro_local
-# Senha injetada via env PG_PASSWORD
+# Grafana — Datasource: CIB Seven PostgreSQL (MAEZO)
+#
+# DEPENDÊNCIA OPCIONAL: aponta para o postgres do MAEZO via maestro_local.
+# Usado pelos dashboards maezo-instance-detail e maezo-rc-ops.
+# Se o MAEZO estiver fora, este datasource falha mas o Grafana continua rodando.
 # =============================================================================
 
 apiVersion: 1
@@ -14,7 +16,7 @@ datasources:
     database: cibseven
     user: maestro
     secureJsonData:
-      password: ${PG_PASSWORD}
+      password: ${MAEZO_PG_PASSWORD}
     uid: cibseven-pg
     jsonData:
       sslmode: disable

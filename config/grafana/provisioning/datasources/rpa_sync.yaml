@@ -1,6 +1,6 @@
 # =============================================================================
 # Grafana — Datasource: RPA Sync (Oracle→PostgreSQL)
-# Conecta ao schema rpa_sync no mesmo PostgreSQL do MAEZO.
+# Conecta ao postgres próprio do monitoramento (austa-postgres).
 # Pré-requisito: rodar sql/01_schema.sql e sql/02_tables.sql e o oracle_sync
 #                estar sincronizando as tabelas ROBO_RPA.
 # =============================================================================
@@ -11,11 +11,11 @@ datasources:
   - name: RPA Sync (Oracle→PG)
     type: postgres
     access: proxy
-    url: postgres:5432
-    database: cibseven
-    user: maestro
+    url: austa-postgres:5432
+    database: austa
+    user: austa
     secureJsonData:
-      password: ${PG_PASSWORD}
+      password: ${AUSTA_PG_PASSWORD}
     uid: rpa-sync-pg
     jsonData:
       sslmode: disable
