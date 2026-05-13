@@ -63,7 +63,9 @@ services:
       # SMTP (opcional)
       GF_SMTP_ENABLED:      ${GF_SMTP_ENABLED:-false}
       GF_SMTP_HOST:         ${GF_SMTP_HOST:-}
+      GF_SMTP_USER:         ${GF_SMTP_USER:-}
       GF_SMTP_FROM_ADDRESS: ${GF_SMTP_FROM_ADDRESS:-}
+      GF_SMTP_FROM_NAME:    ${GF_SMTP_FROM_NAME:-AUSTA Monitoramento}
       GF_SMTP_PASSWORD:     ${GF_SMTP_PASSWORD:-}
       # Alertas
       N8N_GRAFANA_WEBHOOK_URL: ${N8N_GRAFANA_WEBHOOK_URL:-}
