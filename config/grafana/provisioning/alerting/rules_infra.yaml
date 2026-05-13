@@ -165,21 +165,21 @@ groups:
               to: 0
             model:
               expr: |
-                max_over_time(container_memory_usage_bytes{job="cadvisor",name=~"autorizacao-polling-pa|convenio_selenoid|convenio_selenoid_ui|maezo-workers-cib7-1|maezo-workers-workers_rc-1|maezo-workers-workers_co-1|maezo-workers-workers_pa-1|maezo-workers-workers_ps-1|maezo-infra-postgres-1|maezo-infra-kafka-1|metabase_postgres|47c682a00121_metabase_prd"}[6h])
+                max_over_time(container_last_seen{job="cadvisor",name=~"autorizacao-polling-pa|convenio_selenoid|convenio_selenoid_ui|maezo-workers-cib7-1|maezo-workers-workers_rc-1|maezo-workers-workers_co-1|maezo-workers-workers_pa-1|maezo-workers-workers_ps-1|maezo-infra-postgres-1|maezo-infra-kafka-1|metabase_postgres|47c682a00121_metabase_prd"}[6h])
                 unless on(name)
-                container_memory_usage_bytes{job="cadvisor",name=~"autorizacao-polling-pa|convenio_selenoid|convenio_selenoid_ui|maezo-workers-cib7-1|maezo-workers-workers_rc-1|maezo-workers-workers_co-1|maezo-workers-workers_pa-1|maezo-workers-workers_ps-1|maezo-infra-postgres-1|maezo-infra-kafka-1|metabase_postgres|47c682a00121_metabase_prd"}
+                present_over_time(container_last_seen{job="cadvisor",name=~"autorizacao-polling-pa|convenio_selenoid|convenio_selenoid_ui|maezo-workers-cib7-1|maezo-workers-workers_rc-1|maezo-workers-workers_co-1|maezo-workers-workers_pa-1|maezo-workers-workers_ps-1|maezo-infra-postgres-1|maezo-infra-kafka-1|metabase_postgres|47c682a00121_metabase_prd"}[2m])
               instant: true
               intervalMs: 1000
               maxDataPoints: 43200
               refId: A
         noDataState: OK
-        execErrState: OK
-        for: 1m
+        execErrState: Alerting
+        for: 0s
         labels:
           severity: critical
         annotations:
           summary: "Container {{ $labels.name }} está offline"
-          description: "O container {{ $labels.name }} não foi detectado pelo cAdvisor. Verifique o serviço."
+          description: "O container {{ $labels.name }} não reportou ao cAdvisor nos últimos 2 minutos. Verifique o serviço."
 
       - uid: infra-container-restart-loop
         title: "[AVISO] Container em crash loop"
