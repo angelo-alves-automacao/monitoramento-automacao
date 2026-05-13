@@ -119,10 +119,9 @@ services:
     image: prom/node-exporter:v1.8.2
     container_name: austa-node-exporter
     restart: unless-stopped
+    pid: host
     command:
       - "--path.rootfs=/host"
-      - "--path.procfs=/host/proc"
-      - "--path.sysfs=/host/sys"
     volumes:
       - /:/host:ro
     networks:
