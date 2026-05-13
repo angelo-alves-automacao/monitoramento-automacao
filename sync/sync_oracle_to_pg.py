@@ -174,10 +174,10 @@ def set_watermark(pg_cur, table_name, last_id, last_updated_at, rows_synced):
 def fetch_columns(ora_cur, table_name, skip_cols):
     ora_cur.execute(
         "SELECT COLUMN_NAME FROM ALL_TAB_COLUMNS "
-        "WHERE OWNER = :owner AND TABLE_NAME = :table "
+        "WHERE OWNER = :owner AND TABLE_NAME = :tname "
         "ORDER BY COLUMN_ID",
         owner=ORA_SCHEMA,
-        table=table_name,
+        tname=table_name,
     )
     return [r[0] for r in ora_cur.fetchall() if r[0] not in skip_cols]
 
