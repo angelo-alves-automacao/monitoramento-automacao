@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import json; d = json.load\\(open\\('e:/Austa/monitoramento-automacao/config/grafana/provisioning/dashboards/rpa-healthcare.json'\\)\\); rows = [p for p in d['panels'] if p['type']=='row']; print\\('Rows:', [\\(r['id'], r['title'], r['gridPos']['y']\\) for r in rows]\\); ids = [p['id'] for p in d['panels']] + [p['id'] for r in d['panels'] if r['type']=='row' for p in r.get\\('panels',[]\\)]; dups = [i for i in ids if ids.count\\(i\\)>1]; print\\('Duplicate IDs:', dups\\); print\\('Opcoes tipo_autorizacao:', [o['text'] for o in d['templating']['list'][0]['options']]\\)\")"
+    ]
+  }
+}

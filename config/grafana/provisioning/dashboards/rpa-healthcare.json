@@ -1,44 +1,2359 @@
 {
-  "annotations": { "list": [] },
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
   "description": "Saúde e ganho das automações RPA Healthcare — autorizações, pendentes, cirurgias e fechamento",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": null,
+  "id": 8,
   "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "title": "Saúde da Automação",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "default": false,
+        "type": "grafana-postgresql-datasource",
+        "uid": "rpa-sync-pg"
+      },
+      "description": "Total de registros processados pelo bot no período (exceto pendentes)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "id": 101,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_controle_execucao\nWHERE $__timeFilter(data_hora_inicio)\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Total Executados",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": false,
+        "type": "grafana-postgresql-datasource",
+        "uid": "rpa-sync-pg"
+      },
+      "description": "% de execuções sem impedimento — mede a saúde do bot. Vermelho < 90%, Amarelo 90–95%, Verde ≥ 95%",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red"
+              },
+              {
+                "color": "yellow",
+                "value": 90
+              },
+              {
+                "color": "green",
+                "value": 95
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "id": 102,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(\n  COUNT(*) FILTER (WHERE id_status = 3) * 100.0 /\n  NULLIF(COUNT(*) FILTER (WHERE id_status IN (3, 4, 5, 6)), 0),\n  1\n) AS value\nFROM rpa_sync.rpa_controle_execucao\nWHERE $__timeFilter(data_hora_inicio)",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Taxa de Sucesso do Bot",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": false,
+        "type": "grafana-postgresql-datasource",
+        "uid": "rpa-sync-pg"
+      },
+      "description": "Casos em que o bot falhou",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 50
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "id": 103,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_controle_execucao\nWHERE $__timeFilter(data_hora_inicio)\nAND id_status IN (4, 5, 6)\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Falhas (Erro + Timeout)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": false,
+        "type": "grafana-postgresql-datasource",
+        "uid": "rpa-sync-pg"
+      },
+      "description": "Casos ainda em processamento",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 200
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "id": 104,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_controle_execucao\nWHERE id_status IN (1, 2)",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Em Execução Agora",
+      "type": "stat"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 210,
+      "panels": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "description": "Última execução por bot — independe do período selecionado",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "left",
+                "displayMode": "auto"
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Status"
+                },
+                "properties": [
+                  {
+                    "id": "custom.displayMode",
+                    "value": "color-background"
+                  },
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "CONCLUIDO":   { "color": "green",  "text": "CONCLUIDO",   "index": 0 },
+                          "ERRO":        { "color": "red",    "text": "ERRO",        "index": 1 },
+                          "CANCELADO":   { "color": "orange", "text": "CANCELADO",   "index": 2 },
+                          "TIMEOUT":     { "color": "yellow", "text": "TIMEOUT",     "index": 3 },
+                          "PROCESSANDO": { "color": "blue",   "text": "PROCESSANDO", "index": 4 },
+                          "AGUARDANDO":  { "color": "gray",   "text": "AGUARDANDO",  "index": 5 }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Última Execução"
+                },
+                "properties": [
+                  { "id": "unit", "value": "dateTimeAsLocal" },
+                  { "id": "custom.width", "value": 190 }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Há (seg)"
+                },
+                "properties": [
+                  { "id": "unit", "value": "s" },
+                  { "id": "displayName", "value": "Há quanto tempo" },
+                  { "id": "custom.width", "value": 150 }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Duração (min)"
+                },
+                "properties": [
+                  { "id": "custom.width", "value": 120 }
+                ]
+              }
+            ]
+          },
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 6 },
+          "id": 211,
+          "options": {
+            "cellHeight": "sm",
+            "footer": { "show": false }
+          },
+          "targets": [
+            {
+              "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT\n  s.nome_script AS \"Bot\",\n  e.data_hora_inicio AT TIME ZONE 'America/Sao_Paulo' AS \"Última Execução\",\n  CASE WHEN e.data_hora_fim IS NOT NULL\n       THEN ROUND(EXTRACT(EPOCH FROM (e.data_hora_fim - e.data_hora_inicio))/60, 1)\n       ELSE NULL END AS \"Duração (min)\",\n  st.nome_status AS \"Status\",\n  EXTRACT(EPOCH FROM (NOW() - e.data_hora_inicio))::BIGINT AS \"Há (seg)\"\nFROM rpa_sync.rpa_scripts s\nJOIN rpa_sync.rpa_processos p\n  ON p.id_script = s.id_script AND p.ativo = 'S'\nJOIN LATERAL (\n  SELECT * FROM rpa_sync.rpa_controle_execucao e2\n  WHERE e2.id_processo = p.id_processo\n  ORDER BY e2.data_hora_inicio DESC\n  LIMIT 1\n) e ON true\nLEFT JOIN rpa_sync.rpa_status_execucao st\n  ON st.id_status = e.id_status\nWHERE s.ativo = 'S'\nORDER BY s.nome_script",
+              "refId": "A"
+            }
+          ],
+          "title": "Status Atual dos Bots",
+          "type": "table"
+        },
+        {
+          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
+          "description": "Contagem de execuções por status de execução no período selecionado",
+          "fieldConfig": {
+            "defaults": {
+              "custom": { "lineWidth": 1, "fillOpacity": 85 }
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Concluído" },
+                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Erro" },
+                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Cancelado" },
+                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Timeout" },
+                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "yellow" } }]
+              }
+            ]
+          },
+          "gridPos": { "h": 10, "w": 12, "x": 0, "y": 14 },
+          "id": 212,
+          "options": {
+            "xField": "Bot",
+            "stacking": { "mode": "normal", "group": "A" },
+            "orientation": "horizontal",
+            "barWidth": 0.8,
+            "groupWidth": 0.75,
+            "fillOpacity": 85,
+            "gradientMode": "none",
+            "legend": { "displayMode": "list", "placement": "right" }
+          },
+          "targets": [
+            {
+              "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT\n  s.nome_script AS \"Bot\",\n  COUNT(*) FILTER (WHERE e.id_status = 3) AS \"Concluído\",\n  COUNT(*) FILTER (WHERE e.id_status = 4) AS \"Erro\",\n  COUNT(*) FILTER (WHERE e.id_status = 5) AS \"Cancelado\",\n  COUNT(*) FILTER (WHERE e.id_status = 6) AS \"Timeout\"\nFROM rpa_sync.rpa_controle_execucao e\nJOIN rpa_sync.rpa_processos p ON p.id_processo = e.id_processo\nJOIN rpa_sync.rpa_scripts s ON s.id_script = p.id_script\nWHERE $__timeFilter(e.data_hora_inicio)\n  AND s.ativo = 'S'\nGROUP BY s.nome_script\nORDER BY s.nome_script",
+              "refId": "A"
+            }
+          ],
+          "title": "Execuções por Bot — Período",
+          "type": "barchart"
+        },
+        {
+          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
+          "description": "Registros processados por bot e status de negócio no período",
+          "fieldConfig": {
+            "defaults": { "custom": { "lineWidth": 1, "fillOpacity": 85 } },
+            "overrides": []
+          },
+          "gridPos": { "h": 10, "w": 12, "x": 12, "y": 14 },
+          "id": 213,
+          "options": {
+            "xField": "bot\\status",
+            "stacking": { "mode": "normal", "group": "A" },
+            "orientation": "horizontal",
+            "barWidth": 0.8,
+            "groupWidth": 0.75,
+            "fillOpacity": 85,
+            "gradientMode": "none",
+            "legend": { "displayMode": "list", "placement": "right" }
+          },
+          "targets": [
+            {
+              "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT bot, status, total FROM (\n  SELECT 'AutorizacaoPre' AS bot, status, COUNT(*) AS total FROM rpa_sync.hos_autorizacoes WHERE tipo_autorizacao IN ('SPSADT-PRE', 'Consulta') AND $__timeFilter(dt_execucao) GROUP BY status\n  UNION ALL\n  SELECT 'AutorizacaoPos', status, COUNT(*) FROM rpa_sync.hos_autorizacoes WHERE tipo_autorizacao IN ('Prorrogação internação', 'Prorrogação') AND $__timeFilter(dt_execucao) GROUP BY status\n  UNION ALL\n  SELECT 'AutorizacoesProcedimentos', status, COUNT(*) FROM rpa_sync.hos_autorizacoes WHERE tipo_autorizacao = 'Procedimentos' AND $__timeFilter(dt_execucao) GROUP BY status\n  UNION ALL\n  SELECT 'AutorizacaoCirurgia', status, COUNT(*) FROM rpa_sync.hos_autorizacoes WHERE tipo_autorizacao = 'Cirurgia' AND $__timeFilter(dt_execucao) GROUP BY status\n  UNION ALL\n  SELECT 'FechamentoConta', status, COUNT(*) FROM rpa_sync.rpa_hos_fechamento_conta WHERE $__timeFilter(dt_execucao) GROUP BY status\n  UNION ALL\n  SELECT 'AutorizacaoPendentes', status, COUNT(*) FROM rpa_sync.rpa_hos_autorizacoes_pendentes WHERE $__timeFilter(dt_execucao) GROUP BY status\n  UNION ALL\n  SELECT 'EnvioXML', status_execucao, COUNT(*) FROM rpa_sync.hos_protocolo_xml WHERE $__timeFilter(dt_execucao) GROUP BY status_execucao\n) t\nORDER BY bot, status",
+              "refId": "A"
+            }
+          ],
+          "title": "Volume de Registros por Bot — Período",
+          "transformations": [
+            {
+              "id": "groupingToMatrix",
+              "options": {
+                "columnField": "status",
+                "rowField": "bot",
+                "valueField": "total"
+              }
+            }
+          ],
+          "type": "barchart"
+        }
+      ],
+      "title": "Monitor por Bot",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "id": 200,
+      "panels": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "description": "Negada = operadora recusou (bot funcionou). Impedimento = bot travou antes de submeter.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": []
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Autorizada"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Negada (operadora)"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "orange",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Impedimento (bot)"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Outros"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "gray",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 6
+          },
+          "id": 201,
+          "options": {
+            "displayLabels": [
+              "name",
+              "percent"
+            ],
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "values": [
+                "value",
+                "percent"
+              ]
+            },
+            "pieType": "pie",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT\n  COUNT(*) FILTER (WHERE UPPER(status) LIKE '%AUTORIZADO%')                                       AS \"Autorizada\",\n  COUNT(*) FILTER (WHERE UPPER(status) LIKE '%NEGAD%' OR UPPER(status) LIKE '%REPR%')             AS \"Negada (operadora)\",\n  COUNT(*) FILTER (WHERE UPPER(status) LIKE '%IMPEDIMENTO%')                                      AS \"Impedimento (bot)\",\n  COUNT(*) FILTER (WHERE UPPER(status) NOT LIKE '%AUTORIZADO%'\n                     AND UPPER(status) NOT LIKE '%NEGAD%'\n                     AND UPPER(status) NOT LIKE '%REPR%'\n                     AND UPPER(status) NOT LIKE '%IMPEDIMENTO%'\n                     AND UPPER(status) NOT IN ('PENDENTE', 'AGUARDANDO'))                          AS \"Outros\"\nFROM rpa_sync.hos_autorizacoes\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) NOT IN ('PENDENTE', 'AGUARDANDO')\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})",
+              "refId": "A"
+            }
+          ],
+          "title": "Resultado das Submissões",
+          "type": "piechart"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "description": "Tendência diária — identifica degradação do bot. Impedimentos crescentes indicam problema na automação.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "impedimentos"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "executados"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "blue",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 6
+          },
+          "id": 202,
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "time_series",
+              "rawQuery": true,
+              "rawSql": "SELECT\n  DATE_TRUNC('day', dt_execucao)                                              AS time,\n  COUNT(*)                                                                    AS executados,\n  COUNT(*) FILTER (WHERE UPPER(status) LIKE '%IMPEDIMENTO%')                  AS impedimentos\nFROM rpa_sync.hos_autorizacoes\nWHERE $__timeFilter(dt_execucao)\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})\nGROUP BY 1\nORDER BY 1",
+              "refId": "A"
+            }
+          ],
+          "title": "Evolução Diária — Executados vs Impedimentos",
+          "type": "timeseries"
+        }
+      ],
+      "title": "Resultado das Submissões",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "id": 300,
+      "panels": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "tipo_autorizacao"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Tipo Autorização"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 220
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "total_exec"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Total Executados"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "impedimentos"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Impedimentos"
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-text"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green"
+                        },
+                        {
+                          "color": "yellow",
+                          "value": 10
+                        },
+                        {
+                          "color": "red",
+                          "value": 50
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "taxa_impedimento_pct"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Taxa Imped. %"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "percent"
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "gradient",
+                      "type": "color-background"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green"
+                        },
+                        {
+                          "color": "yellow",
+                          "value": 5
+                        },
+                        {
+                          "color": "red",
+                          "value": 10
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 15
+          },
+          "id": 301,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": [
+              {
+                "desc": true,
+                "displayName": "Impedimentos"
+              }
+            ]
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT\n  tipo_autorizacao,\n  COUNT(*) FILTER (WHERE UPPER(status) NOT IN ('PENDENTE', 'AGUARDANDO'))             AS total_exec,\n  COUNT(*) FILTER (WHERE UPPER(status) LIKE '%IMPEDIMENTO%')                          AS impedimentos,\n  ROUND(\n    COUNT(*) FILTER (WHERE UPPER(status) LIKE '%IMPEDIMENTO%') * 100.0 /\n    NULLIF(COUNT(*) FILTER (WHERE UPPER(status) NOT IN ('PENDENTE', 'AGUARDANDO')), 0),\n    1\n  )                                                                                   AS taxa_impedimento_pct\nFROM rpa_sync.hos_autorizacoes\nWHERE $__timeFilter(dt_execucao)\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})\nGROUP BY tipo_autorizacao\nORDER BY impedimentos DESC",
+              "refId": "A"
+            }
+          ],
+          "title": "Impedimentos por Tipo de Autorização",
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "description": "Mensagens recorrentes de impedimento — identifica padrões de falha da automação",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "mensagem"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 600
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Mensagem de Impedimento"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "ocorrencias"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Ocorrências"
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "gradient",
+                      "type": "color-background"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "yellow"
+                        },
+                        {
+                          "color": "red",
+                          "value": 30
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 23
+          },
+          "id": 302,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": [
+              {
+                "desc": true,
+                "displayName": "Ocorrências"
+              }
+            ]
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT\n  SUBSTRING(mensagem, 1, 150) AS mensagem,\n  COUNT(*)                   AS ocorrencias\nFROM rpa_sync.hos_autorizacoes\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) LIKE '%IMPEDIMENTO%'\nAND mensagem IS NOT NULL\nAND mensagem <> ''\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})\nGROUP BY SUBSTRING(mensagem, 1, 150)\nORDER BY ocorrencias DESC\nLIMIT 20",
+              "refId": "A"
+            }
+          ],
+          "title": "Top Causas de Impedimento",
+          "type": "table"
+        }
+      ],
+      "title": "Onde o Bot Trava — Análise de Impedimentos",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 400,
+      "panels": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "description": "Total de casos que o bot validou e colocou na fila (estado atual)",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "blue",
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue"
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 8,
+            "x": 0,
+            "y": 32
+          },
+          "id": 401,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_hos_autorizacoes_pendentes\nWHERE tipo_autorizacao IN (${tipo_autorizacao:singlequote})",
+              "refId": "A"
+            }
+          ],
+          "title": "Validados pelo Bot",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "description": "Casos em que a operadora já retornou uma resposta (aprovado ou reprovado)",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "green",
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 8,
+            "x": 8,
+            "y": 32
+          },
+          "id": 402,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_hos_autorizacoes_pendentes\nWHERE (\n  UPPER(status_operadora) LIKE '%APRO%' OR UPPER(status_operadora) LIKE '%AUTO%'\n  OR UPPER(status_operadora) LIKE '%REPRO%' OR UPPER(status_operadora) LIKE '%NEGAD%'\n)\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})",
+              "refId": "A"
+            }
+          ],
+          "title": "Com Resposta da Operadora",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "description": "Casos submetidos pelo bot que ainda aguardam resposta da operadora",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 50
+                  },
+                  {
+                    "color": "red",
+                    "value": 200
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 8,
+            "x": 16,
+            "y": 32
+          },
+          "id": 403,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_hos_autorizacoes_pendentes\nWHERE UPPER(status) IN ('PENDENTE', 'AGUARDANDO')\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})",
+              "refId": "A"
+            }
+          ],
+          "title": "Aguardando Operadora",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "description": "Ciclo completo: o que o bot submeteu (status) e o que a operadora respondeu (status_operadora). Impedimento = bot travou antes de enviar.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "status_bot"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Status Bot"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 180
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "status_operadora"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Resposta Operadora"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 200
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "qtd"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Qtd"
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "gradient",
+                      "type": "color-background"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "blue"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 36
+          },
+          "id": 404,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": [
+              {
+                "desc": true,
+                "displayName": "Qtd"
+              }
+            ]
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT\n  COALESCE(status, 'N/A')                  AS status_bot,\n  COALESCE(status_operadora, 'Sem resposta') AS status_operadora,\n  COUNT(*)                                  AS qtd\nFROM rpa_sync.rpa_hos_autorizacoes_pendentes\nWHERE tipo_autorizacao IN (${tipo_autorizacao:singlequote})\nGROUP BY status, status_operadora\nORDER BY qtd DESC",
+              "refId": "A"
+            }
+          ],
+          "title": "Ciclo STATUS Bot → Resposta Operadora",
+          "type": "table"
+        }
+      ],
+      "title": "Fila de Pendentes — Casos Validados pelo Bot",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "id": 500,
+      "panels": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "description": "Autorizações submetidas pelo bot no período — cada uma seria manual sem a automação",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "blue",
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue"
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 0,
+            "y": 9
+          },
+          "id": 501,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.hos_autorizacoes\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) NOT IN ('PENDENTE', 'AGUARDANDO')\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})",
+              "refId": "A"
+            }
+          ],
+          "title": "Autorizações Submetidas",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "description": "Fechamentos de conta processados pelo bot no período",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "purple",
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "purple"
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 6,
+            "y": 9
+          },
+          "id": 502,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_hos_fechamento_conta\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) NOT IN ('PENDENTE')",
+              "refId": "A"
+            }
+          ],
+          "title": "Fechamentos Processados",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "description": "Cirurgias com status atualizado pelo bot no período",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "teal",
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "teal"
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 12,
+            "y": 9
+          },
+          "id": 503,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.hos_controle_cirurgias\nWHERE $__timeFilter(dt_ultima_atualizacao)",
+              "refId": "A"
+            }
+          ],
+          "title": "Cirurgias Atualizadas",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "description": "Protocolos XML gerados e processados pelo bot no período",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "orange",
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "orange"
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 18,
+            "y": 9
+          },
+          "id": 504,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.hos_protocolo_xml\nWHERE $__timeFilter(dt_execucao)",
+              "refId": "A"
+            }
+          ],
+          "title": "Protocolos XML",
+          "type": "stat"
+        }
+      ],
+      "title": "Ganho — Trabalho Evitado pela Automação",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "id": 600,
+      "panels": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "green",
+                "mode": "fixed"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 0,
+            "y": 22
+          },
+          "id": 601,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_hos_fechamento_conta\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) = 'CONCLUIDO'",
+              "refId": "A"
+            }
+          ],
+          "title": "Concluídos",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 1
+                  },
+                  {
+                    "color": "red",
+                    "value": 20
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 6,
+            "y": 22
+          },
+          "id": 602,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_hos_fechamento_conta\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) = 'IMPEDIMENTO'",
+              "refId": "A"
+            }
+          ],
+          "title": "Impedimentos",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 10
+                  },
+                  {
+                    "color": "red",
+                    "value": 50
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 12,
+            "y": 22
+          },
+          "id": 603,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_hos_fechamento_conta\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) = 'PENDENTE'",
+              "refId": "A"
+            }
+          ],
+          "title": "Pendentes",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "description": "Soma do valor das contas processadas pelo bot no período",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "green",
+                "mode": "fixed"
+              },
+              "decimals": 0,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              },
+              "unit": "currencyBRL"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 18,
+            "y": 22
+          },
+          "id": 604,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT COALESCE(SUM(total_conta), 0) AS value\nFROM rpa_sync.rpa_hos_fechamento_conta\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) NOT IN ('PENDENTE')",
+              "refId": "A"
+            }
+          ],
+          "title": "Valor Total Processado",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "rpa-sync-pg"
+          },
+          "description": "Detalhes dos casos em que o bot não conseguiu fechar a conta — útil para triagem manual",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "nr_atendimento"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Atendimento"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 120
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "nr_conta"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Conta"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 100
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "convenio"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Convênio"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 150
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "tipo"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Tipo"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 100
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "valor"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Valor R$"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "currencyBRL"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "erro"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Mensagem de Erro"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 400
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "dt_execucao"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Data/Hora"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 140
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 26
+          },
+          "id": 605,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": [
+              {
+                "desc": true,
+                "displayName": "Data/Hora"
+              }
+            ]
+          },
+          "pluginVersion": "11.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "rpa-sync-pg"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT\n  nr_atendimento,\n  nr_conta,\n  convenio,\n  tipo_atendimento                            AS tipo,\n  total_conta                                 AS valor,\n  status,\n  mensagem                                    AS erro,\n  ds_setor_atendimento                        AS setor,\n  TO_CHAR(dt_execucao, 'DD/MM HH24:MI:SS')   AS dt_execucao\nFROM rpa_sync.rpa_hos_fechamento_conta\nWHERE $__timeFilter(dt_execucao)\nAND (UPPER(status) = 'IMPEDIMENTO' OR UPPER(status) LIKE '%FALHA%')\nORDER BY dt_execucao DESC\nLIMIT 100",
+              "refId": "A"
+            }
+          ],
+          "title": "Impedimentos Detalhados — Fechamento de Contas",
+          "type": "table"
+        }
+      ],
+      "title": "Fechamento de Contas",
+      "type": "row"
+    }
+  ],
   "refresh": "5m",
   "schemaVersion": 39,
-  "tags": ["rpa", "healthcare"],
-  "time": { "from": "now-7d", "to": "now" },
-  "timepicker": {},
-  "timezone": "America/Sao_Paulo",
-  "title": "RPA Healthcare — Saúde e Ganho das Automações",
-  "uid": "rpa-healthcare",
-  "version": 1,
-
+  "tags": [
+    "rpa",
+    "healthcare"
+  ],
   "templating": {
     "list": [
       {
-        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
         "hide": 0,
         "includeAll": true,
         "label": "Tipo Autorização",
         "multi": true,
         "name": "tipo_autorizacao",
         "options": [
-          { "selected": false, "text": "SPSADT-PRE",              "value": "SPSADT-PRE" },
-          { "selected": false, "text": "Prorrogação internação",   "value": "Prorrogação internação" },
-          { "selected": false, "text": "Cirurgia",                 "value": "Cirurgia" },
-          { "selected": false, "text": "Internação",               "value": "Internação" },
-          { "selected": false, "text": "Consulta",                 "value": "Consulta" },
-          { "selected": false, "text": "Procedimentos",            "value": "Procedimentos" }
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "SPSADT-PRE",
+            "value": "SPSADT-PRE"
+          },
+          {
+            "selected": false,
+            "text": "Prorrogação internação",
+            "value": "Prorrogação internação"
+          },
+          {
+            "selected": false,
+            "text": "Cirurgia",
+            "value": "Cirurgia"
+          },
+          {
+            "selected": false,
+            "text": "Consulta",
+            "value": "Consulta"
+          },
+          {
+            "selected": false,
+            "text": "Procedimentos",
+            "value": "Procedimentos"
+          }
         ],
-        "query": "SPSADT-PRE,Prorrogação internação,Cirurgia,Internação,Consulta,Procedimentos",
+        "query": "SPSADT-PRE,Prorrogação internação,Cirurgia,Consulta,Procedimentos",
+        "skipUrlSync": false,
         "type": "custom"
       },
       {
-        "current": {},
-        "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "rpa-sync-pg"
+        },
         "definition": "SELECT DISTINCT ds_convenio FROM rpa_sync.hos_autorizacoes WHERE ds_convenio IS NOT NULL ORDER BY ds_convenio",
         "hide": 0,
         "includeAll": true,
@@ -48,883 +2363,21 @@
         "options": [],
         "query": "SELECT DISTINCT ds_convenio FROM rpa_sync.hos_autorizacoes WHERE ds_convenio IS NOT NULL ORDER BY ds_convenio",
         "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
         "type": "query"
       }
     ]
   },
-
-  "panels": [
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
-      "id": 100,
-      "title": "Saúde da Automação",
-      "type": "row"
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Total de registros processados pelo bot no período (exceto pendentes)",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "fixedColor": "blue", "mode": "fixed" },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
-      "id": 101,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Total Executados",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.hos_autorizacoes\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) NOT IN ('PENDENTE', 'AGUARDANDO')\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "% de execuções sem impedimento — mede a saúde do bot. Vermelho < 90%, Amarelo 90–95%, Verde ≥ 95%",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "red",    "value": null },
-              { "color": "yellow", "value": 90 },
-              { "color": "green",  "value": 95 }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
-      "id": 102,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Taxa de Sucesso do Bot",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT ROUND(\n  COUNT(*) FILTER (WHERE UPPER(status) NOT LIKE '%IMPEDIMENTO%') * 100.0 /\n  NULLIF(COUNT(*) FILTER (WHERE UPPER(status) NOT IN ('PENDENTE', 'AGUARDANDO')), 0),\n  1\n) AS value\nFROM rpa_sync.hos_autorizacoes\nWHERE $__timeFilter(dt_execucao)\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Casos em que o bot travou (IMPEDIMENTO). Diferente de Negado — negado é decisão da operadora, não falha do bot.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green",  "value": null },
-              { "color": "yellow", "value": 1 },
-              { "color": "red",    "value": 50 }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
-      "id": 103,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Impedimentos (falha do bot)",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.hos_autorizacoes\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) LIKE '%IMPEDIMENTO%'\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Casos ainda não processados (estado atual, sem filtro de período)",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green",  "value": null },
-              { "color": "yellow", "value": 50 },
-              { "color": "red",    "value": 200 }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
-      "id": 104,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Ainda na Fila (estado atual)",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.hos_autorizacoes\nWHERE UPPER(status) IN ('PENDENTE', 'AGUARDANDO')\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
-      "id": 200,
-      "title": "Resultado das Submissões",
-      "type": "row"
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Negada = operadora recusou (bot funcionou). Impedimento = bot travou antes de submeter.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } },
-          "mappings": []
-        },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "Autorizada" },         "properties": [{ "id": "color", "value": { "fixedColor": "green",  "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "Negada (operadora)" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "Impedimento (bot)" },  "properties": [{ "id": "color", "value": { "fixedColor": "red",    "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "Outros" },             "properties": [{ "id": "color", "value": { "fixedColor": "gray",   "mode": "fixed" } }] }
-        ]
-      },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 6 },
-      "id": 201,
-      "options": {
-        "displayLabels": ["name", "percent"],
-        "legend": { "displayMode": "table", "placement": "bottom", "showLegend": true, "values": ["value", "percent"] },
-        "pieType": "pie",
-        "tooltip": { "mode": "single", "sort": "none" }
-      },
-      "title": "Resultado das Submissões",
-      "type": "piechart",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  COUNT(*) FILTER (WHERE UPPER(status) LIKE '%AUTORIZADO%')                                       AS \"Autorizada\",\n  COUNT(*) FILTER (WHERE UPPER(status) LIKE '%NEGAD%' OR UPPER(status) LIKE '%REPR%')             AS \"Negada (operadora)\",\n  COUNT(*) FILTER (WHERE UPPER(status) LIKE '%IMPEDIMENTO%')                                      AS \"Impedimento (bot)\",\n  COUNT(*) FILTER (WHERE UPPER(status) NOT LIKE '%AUTORIZADO%'\n                     AND UPPER(status) NOT LIKE '%NEGAD%'\n                     AND UPPER(status) NOT LIKE '%REPR%'\n                     AND UPPER(status) NOT LIKE '%IMPEDIMENTO%'\n                     AND UPPER(status) NOT IN ('PENDENTE', 'AGUARDANDO'))                          AS \"Outros\"\nFROM rpa_sync.hos_autorizacoes\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) NOT IN ('PENDENTE', 'AGUARDANDO')\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Tendência diária — identifica degradação do bot. Impedimentos crescentes indicam problema na automação.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "lineWidth": 2,
-            "pointSize": 5,
-            "showPoints": "auto",
-            "spanNulls": false
-          },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
-        },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "impedimentos" }, "properties": [{ "id": "color", "value": { "fixedColor": "red",  "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "executados"   }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] }
-        ]
-      },
-      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 6 },
-      "id": 202,
-      "options": {
-        "legend": { "calcs": ["sum", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "none" }
-      },
-      "title": "Evolução Diária — Executados vs Impedimentos",
-      "type": "timeseries",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "time_series",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_TRUNC('day', dt_execucao)                                              AS time,\n  COUNT(*)                                                                    AS executados,\n  COUNT(*) FILTER (WHERE UPPER(status) LIKE '%IMPEDIMENTO%')                  AS impedimentos\nFROM rpa_sync.hos_autorizacoes\nWHERE $__timeFilter(dt_execucao)\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})\nGROUP BY 1\nORDER BY 1",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
-      "id": 300,
-      "title": "Onde o Bot Trava — Análise de Impedimentos",
-      "type": "row"
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
-        },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "tipo_autorizacao"   }, "properties": [{ "id": "displayName", "value": "Tipo Autorização" }, { "id": "custom.width", "value": 220 }] },
-          { "matcher": { "id": "byName", "options": "total_exec"         }, "properties": [{ "id": "displayName", "value": "Total Executados"  }] },
-          { "matcher": { "id": "byName", "options": "impedimentos"       }, "properties": [
-              { "id": "displayName", "value": "Impedimentos" },
-              { "id": "custom.cellOptions", "value": { "type": "color-text" } },
-              { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 10 }, { "color": "red", "value": 50 }] } }
-          ]},
-          { "matcher": { "id": "byName", "options": "taxa_impedimento_pct" }, "properties": [
-              { "id": "displayName", "value": "Taxa Imped. %" },
-              { "id": "unit",        "value": "percent" },
-              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "color-background" } },
-              { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 5 }, { "color": "red", "value": 10 }] } }
-          ]}
-        ]
-      },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 15 },
-      "id": 301,
-      "options": {
-        "cellHeight": "sm",
-        "footer": { "show": false },
-        "showHeader": true,
-        "sortBy": [{ "desc": true, "displayName": "Impedimentos" }]
-      },
-      "title": "Impedimentos por Tipo de Autorização",
-      "type": "table",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  tipo_autorizacao,\n  COUNT(*) FILTER (WHERE UPPER(status) NOT IN ('PENDENTE', 'AGUARDANDO'))             AS total_exec,\n  COUNT(*) FILTER (WHERE UPPER(status) LIKE '%IMPEDIMENTO%')                          AS impedimentos,\n  ROUND(\n    COUNT(*) FILTER (WHERE UPPER(status) LIKE '%IMPEDIMENTO%') * 100.0 /\n    NULLIF(COUNT(*) FILTER (WHERE UPPER(status) NOT IN ('PENDENTE', 'AGUARDANDO')), 0),\n    1\n  )                                                                                   AS taxa_impedimento_pct\nFROM rpa_sync.hos_autorizacoes\nWHERE $__timeFilter(dt_execucao)\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})\nGROUP BY tipo_autorizacao\nORDER BY impedimentos DESC",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Mensagens recorrentes de impedimento — identifica padrões de falha da automação",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
-        },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "mensagem"    }, "properties": [{ "id": "custom.width", "value": 600 }, { "id": "displayName", "value": "Mensagem de Impedimento" }] },
-          { "matcher": { "id": "byName", "options": "ocorrencias" }, "properties": [
-              { "id": "displayName", "value": "Ocorrências" },
-              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "color-background" } },
-              { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "yellow", "value": null }, { "color": "red", "value": 30 }] } }
-          ]}
-        ]
-      },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 23 },
-      "id": 302,
-      "options": {
-        "cellHeight": "sm",
-        "footer": { "show": false },
-        "showHeader": true,
-        "sortBy": [{ "desc": true, "displayName": "Ocorrências" }]
-      },
-      "title": "Top Causas de Impedimento",
-      "type": "table",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  SUBSTRING(mensagem, 1, 150) AS mensagem,\n  COUNT(*)                   AS ocorrencias\nFROM rpa_sync.hos_autorizacoes\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) LIKE '%IMPEDIMENTO%'\nAND mensagem IS NOT NULL\nAND mensagem <> ''\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})\nGROUP BY SUBSTRING(mensagem, 1, 150)\nORDER BY ocorrencias DESC\nLIMIT 20",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 31 },
-      "id": 400,
-      "title": "Fila de Pendentes — Casos Validados pelo Bot",
-      "type": "row"
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Total de casos que o bot validou e colocou na fila (estado atual)",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "fixedColor": "blue", "mode": "fixed" },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 32 },
-      "id": 401,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Validados pelo Bot",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_hos_autorizacoes_pendentes\nWHERE tipo_autorizacao IN (${tipo_autorizacao:singlequote})",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Casos em que a operadora já retornou uma resposta (aprovado ou reprovado)",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "fixedColor": "green", "mode": "fixed" },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 32 },
-      "id": 402,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Com Resposta da Operadora",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_hos_autorizacoes_pendentes\nWHERE (\n  UPPER(status_operadora) LIKE '%APRO%' OR UPPER(status_operadora) LIKE '%AUTO%'\n  OR UPPER(status_operadora) LIKE '%REPRO%' OR UPPER(status_operadora) LIKE '%NEGAD%'\n)\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Casos submetidos pelo bot que ainda aguardam resposta da operadora",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green",  "value": null },
-              { "color": "yellow", "value": 50 },
-              { "color": "red",    "value": 200 }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 32 },
-      "id": 403,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Aguardando Operadora",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_hos_autorizacoes_pendentes\nWHERE UPPER(status) IN ('PENDENTE', 'AGUARDANDO')\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Ciclo completo: o que o bot submeteu (status) e o que a operadora respondeu (status_operadora). Impedimento = bot travou antes de enviar.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
-        },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "status_bot"       }, "properties": [{ "id": "displayName", "value": "Status Bot"        }, { "id": "custom.width", "value": 180 }] },
-          { "matcher": { "id": "byName", "options": "status_operadora" }, "properties": [{ "id": "displayName", "value": "Resposta Operadora" }, { "id": "custom.width", "value": 200 }] },
-          { "matcher": { "id": "byName", "options": "qtd"              }, "properties": [
-              { "id": "displayName", "value": "Qtd" },
-              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "color-background" } },
-              { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] } }
-          ]}
-        ]
-      },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 36 },
-      "id": 404,
-      "options": {
-        "cellHeight": "sm",
-        "footer": { "show": false },
-        "showHeader": true,
-        "sortBy": [{ "desc": true, "displayName": "Qtd" }]
-      },
-      "title": "Ciclo STATUS Bot → Resposta Operadora",
-      "type": "table",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  COALESCE(status, 'N/A')                  AS status_bot,\n  COALESCE(status_operadora, 'Sem resposta') AS status_operadora,\n  COUNT(*)                                  AS qtd\nFROM rpa_sync.rpa_hos_autorizacoes_pendentes\nWHERE tipo_autorizacao IN (${tipo_autorizacao:singlequote})\nGROUP BY status, status_operadora\nORDER BY qtd DESC",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 44 },
-      "id": 500,
-      "title": "Ganho — Trabalho Evitado pela Automação",
-      "type": "row"
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Autorizações submetidas pelo bot no período — cada uma seria manual sem a automação",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "fixedColor": "blue", "mode": "fixed" },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 45 },
-      "id": 501,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Autorizações Submetidas",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.hos_autorizacoes\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) NOT IN ('PENDENTE', 'AGUARDANDO')\nAND tipo_autorizacao IN (${tipo_autorizacao:singlequote})",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Fechamentos de conta processados pelo bot no período",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "fixedColor": "purple", "mode": "fixed" },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 45 },
-      "id": 502,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Fechamentos Processados",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_hos_fechamento_conta\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) NOT IN ('PENDENTE')",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Cirurgias com status atualizado pelo bot no período",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "fixedColor": "teal", "mode": "fixed" },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "teal", "value": null }] },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 45 },
-      "id": 503,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Cirurgias Atualizadas",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.hos_controle_cirurgias\nWHERE $__timeFilter(dt_ultima_atualizacao)",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Protocolos XML gerados e processados pelo bot no período",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "fixedColor": "orange", "mode": "fixed" },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 45 },
-      "id": 504,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Protocolos XML",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.hos_protocolo_xml\nWHERE $__timeFilter(dt_execucao)",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 49 },
-      "id": 600,
-      "title": "Fechamento de Contas",
-      "type": "row"
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "fixedColor": "green", "mode": "fixed" },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 50 },
-      "id": 601,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Concluídos",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_hos_fechamento_conta\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) = 'CONCLUIDO'",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green",  "value": null },
-              { "color": "yellow", "value": 1 },
-              { "color": "red",    "value": 20 }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 50 },
-      "id": 602,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Impedimentos",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_hos_fechamento_conta\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) = 'IMPEDIMENTO'",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green",  "value": null },
-              { "color": "yellow", "value": 10 },
-              { "color": "red",    "value": 50 }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 50 },
-      "id": 603,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Pendentes",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) AS value\nFROM rpa_sync.rpa_hos_fechamento_conta\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) = 'PENDENTE'",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Soma do valor das contas processadas pelo bot no período",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "fixedColor": "green", "mode": "fixed" },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
-          "unit": "currencyBRL",
-          "decimals": 0
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 50 },
-      "id": 604,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "title": "Valor Total Processado",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT COALESCE(SUM(total_conta), 0) AS value\nFROM rpa_sync.rpa_hos_fechamento_conta\nWHERE $__timeFilter(dt_execucao)\nAND UPPER(status) NOT IN ('PENDENTE')",
-          "refId": "A"
-        }
-      ]
-    },
-
-    {
-      "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-      "description": "Detalhes dos casos em que o bot não conseguiu fechar a conta — útil para triagem manual",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
-        },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "nr_atendimento" }, "properties": [{ "id": "displayName", "value": "Atendimento" }, { "id": "custom.width", "value": 120 }] },
-          { "matcher": { "id": "byName", "options": "nr_conta"       }, "properties": [{ "id": "displayName", "value": "Conta"       }, { "id": "custom.width", "value": 100 }] },
-          { "matcher": { "id": "byName", "options": "convenio"       }, "properties": [{ "id": "displayName", "value": "Convênio"    }, { "id": "custom.width", "value": 150 }] },
-          { "matcher": { "id": "byName", "options": "tipo"           }, "properties": [{ "id": "displayName", "value": "Tipo"        }, { "id": "custom.width", "value": 100 }] },
-          { "matcher": { "id": "byName", "options": "valor"          }, "properties": [{ "id": "displayName", "value": "Valor R$"    }, { "id": "unit",         "value": "currencyBRL" }] },
-          { "matcher": { "id": "byName", "options": "erro"           }, "properties": [{ "id": "displayName", "value": "Mensagem de Erro" }, { "id": "custom.width", "value": 400 }] },
-          { "matcher": { "id": "byName", "options": "dt_execucao"    }, "properties": [{ "id": "displayName", "value": "Data/Hora"   }, { "id": "custom.width", "value": 140 }] }
-        ]
-      },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 54 },
-      "id": 605,
-      "options": {
-        "cellHeight": "sm",
-        "footer": { "show": false },
-        "showHeader": true,
-        "sortBy": [{ "desc": true, "displayName": "Data/Hora" }]
-      },
-      "title": "Impedimentos Detalhados — Fechamento de Contas",
-      "type": "table",
-      "targets": [
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  nr_atendimento,\n  nr_conta,\n  convenio,\n  tipo_atendimento                            AS tipo,\n  total_conta                                 AS valor,\n  status,\n  mensagem                                    AS erro,\n  ds_setor_atendimento                        AS setor,\n  TO_CHAR(dt_execucao, 'DD/MM HH24:MI:SS')   AS dt_execucao\nFROM rpa_sync.rpa_hos_fechamento_conta\nWHERE $__timeFilter(dt_execucao)\nAND (UPPER(status) = 'IMPEDIMENTO' OR UPPER(status) LIKE '%FALHA%')\nORDER BY dt_execucao DESC\nLIMIT 100",
-          "refId": "A"
-        }
-      ]
-    }
-
-  ]
+  "time": {
+    "from": "now/d",
+    "to": "now/d"
+  },
+  "timepicker": {},
+  "timezone": "America/Sao_Paulo",
+  "title": "RPA Healthcare — Saúde e Ganho das Automações",
+  "uid": "rpa-healthcare",
+  "version": 7,
+  "weekStart": ""
 }
