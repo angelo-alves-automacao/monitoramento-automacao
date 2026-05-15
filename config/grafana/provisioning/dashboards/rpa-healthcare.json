@@ -418,15 +418,9 @@
             },
             "overrides": [
               {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Status"
-                },
+                "matcher": { "id": "byName", "options": "Status" },
                 "properties": [
-                  {
-                    "id": "custom.displayMode",
-                    "value": "color-background"
-                  },
+                  { "id": "custom.displayMode", "value": "color-background" },
                   {
                     "id": "mappings",
                     "value": [
@@ -446,33 +440,74 @@
                 ]
               },
               {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Última Execução"
-                },
+                "matcher": { "id": "byName", "options": "Última Execução" },
                 "properties": [
                   { "id": "unit", "value": "dateTimeAsLocal" },
                   { "id": "custom.width", "value": 190 }
                 ]
               },
               {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Há (seg)"
-                },
+                "matcher": { "id": "byName", "options": "Há (seg)" },
                 "properties": [
                   { "id": "unit", "value": "s" },
                   { "id": "displayName", "value": "Há quanto tempo" },
-                  { "id": "custom.width", "value": 150 }
+                  { "id": "custom.width", "value": 150 },
+                  { "id": "custom.displayMode", "value": "color-background" },
+                  { "id": "color", "value": { "mode": "thresholds" } },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        { "color": "green", "value": null },
+                        { "color": "red", "value": 86400 }
+                      ]
+                    }
+                  }
                 ]
               },
               {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Duração (min)"
-                },
+                "matcher": { "id": "byName", "options": "Duração (min)" },
                 "properties": [
                   { "id": "custom.width", "value": 120 }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Hoje Concluído" },
+                "properties": [
+                  { "id": "custom.width", "value": 110 },
+                  { "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } },
+                  { "id": "custom.displayMode", "value": "color-background" }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Hoje Erro" },
+                "properties": [
+                  { "id": "custom.width", "value": 90 },
+                  { "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } },
+                  { "id": "custom.displayMode", "value": "color-background" }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Hoje Cancelado" },
+                "properties": [
+                  { "id": "custom.width", "value": 110 },
+                  { "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } },
+                  { "id": "custom.displayMode", "value": "color-background" }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Hoje Timeout" },
+                "properties": [
+                  { "id": "custom.width", "value": 100 },
+                  { "id": "color", "value": { "mode": "fixed", "fixedColor": "yellow" } },
+                  { "id": "custom.displayMode", "value": "color-background" }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Registros (período)" },
+                "properties": [
+                  { "id": "custom.width", "value": 130 }
                 ]
               }
             ]
@@ -489,7 +524,7 @@
               "editorMode": "code",
               "format": "table",
               "rawQuery": true,
-              "rawSql": "SELECT\n  s.nome_script AS \"Bot\",\n  e.data_hora_inicio AT TIME ZONE 'America/Sao_Paulo' AS \"Última Execução\",\n  CASE WHEN e.data_hora_fim IS NOT NULL\n       THEN ROUND(EXTRACT(EPOCH FROM (e.data_hora_fim - e.data_hora_inicio))/60, 1)\n       ELSE NULL END AS \"Duração (min)\",\n  st.nome_status AS \"Status\",\n  EXTRACT(EPOCH FROM (NOW() - e.data_hora_inicio))::BIGINT AS \"Há (seg)\"\nFROM rpa_sync.rpa_scripts s\nJOIN rpa_sync.rpa_processos p\n  ON p.id_script = s.id_script AND p.ativo = 'S'\nJOIN LATERAL (\n  SELECT * FROM rpa_sync.rpa_controle_execucao e2\n  WHERE e2.id_processo = p.id_processo\n  ORDER BY e2.data_hora_inicio DESC\n  LIMIT 1\n) e ON true\nLEFT JOIN rpa_sync.rpa_status_execucao st\n  ON st.id_status = e.id_status\nWHERE s.ativo = 'S'\nORDER BY s.nome_script",
+              "rawSql": "WITH\nlast_exec AS (\n  SELECT DISTINCT ON (s.id_script)\n    s.id_script,\n    s.nome_script,\n    e.data_hora_inicio,\n    e.data_hora_fim,\n    e.id_status,\n    st.nome_status,\n    EXTRACT(EPOCH FROM (NOW() - e.data_hora_inicio))::BIGINT AS ha_seg\n  FROM rpa_sync.rpa_scripts s\n  JOIN rpa_sync.rpa_processos p ON p.id_script = s.id_script AND p.ativo = 'S'\n  JOIN rpa_sync.rpa_controle_execucao e ON e.id_processo = p.id_processo\n  LEFT JOIN rpa_sync.rpa_status_execucao st ON st.id_status = e.id_status\n  WHERE s.ativo = 'S'\n  ORDER BY s.id_script, e.data_hora_inicio DESC\n),\ntoday_exec AS (\n  SELECT\n    s.id_script,\n    COUNT(*) FILTER (WHERE e.id_status = 3) AS hoje_concluido,\n    COUNT(*) FILTER (WHERE e.id_status = 4) AS hoje_erro,\n    COUNT(*) FILTER (WHERE e.id_status = 5) AS hoje_cancelado,\n    COUNT(*) FILTER (WHERE e.id_status = 6) AS hoje_timeout\n  FROM rpa_sync.rpa_scripts s\n  JOIN rpa_sync.rpa_processos p ON p.id_script = s.id_script\n  JOIN rpa_sync.rpa_controle_execucao e ON e.id_processo = p.id_processo\n  WHERE e.data_hora_inicio >= CURRENT_DATE\n  GROUP BY s.id_script\n),\nbiz_records AS (\n  SELECT bot_key, SUM(total) AS total FROM (\n    SELECT 'AutorizacaoPre' AS bot_key, COUNT(*) AS total\n    FROM rpa_sync.hos_autorizacoes\n    WHERE tipo_autorizacao IN ('SPSADT-PRE', 'Consulta') AND $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'AutorizacaoPos', COUNT(*)\n    FROM rpa_sync.hos_autorizacoes\n    WHERE tipo_autorizacao IN ('Prorrogação internação', 'Prorrogação') AND $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'AutorizacoesProcedimentos', COUNT(*)\n    FROM rpa_sync.hos_autorizacoes\n    WHERE tipo_autorizacao = 'Procedimentos' AND $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'AutorizacaoCirurgia', COUNT(*)\n    FROM rpa_sync.hos_autorizacoes\n    WHERE tipo_autorizacao = 'Cirurgia' AND $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'FechamentoConta', COUNT(*)\n    FROM rpa_sync.rpa_hos_fechamento_conta\n    WHERE $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'AutorizacaoPendentes', COUNT(*)\n    FROM rpa_sync.rpa_hos_autorizacoes_pendentes\n    WHERE $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'EnvioXML', COUNT(*)\n    FROM rpa_sync.hos_protocolo_xml\n    WHERE $__timeFilter(dt_execucao)\n  ) t\n  GROUP BY bot_key\n)\nSELECT\n  le.nome_script                 AS \"Bot\",\n  le.data_hora_inicio AT TIME ZONE 'America/Sao_Paulo' AS \"Última Execução\",\n  CASE WHEN le.data_hora_fim IS NOT NULL\n       THEN ROUND(EXTRACT(EPOCH FROM (le.data_hora_fim - le.data_hora_inicio))/60, 1)\n       ELSE NULL END              AS \"Duração (min)\",\n  le.nome_status                 AS \"Status\",\n  le.ha_seg                      AS \"Há (seg)\",\n  COALESCE(te.hoje_concluido, 0) AS \"Hoje Concluído\",\n  COALESCE(te.hoje_erro, 0)      AS \"Hoje Erro\",\n  COALESCE(te.hoje_cancelado, 0) AS \"Hoje Cancelado\",\n  COALESCE(te.hoje_timeout, 0)   AS \"Hoje Timeout\",\n  COALESCE(br.total, 0)          AS \"Registros (período)\"\nFROM last_exec le\nLEFT JOIN today_exec te ON te.id_script = le.id_script\nLEFT JOIN biz_records br ON br.bot_key = CASE le.nome_script\n  WHEN 'HOS_Austa_AutorizacaoPre'            THEN 'AutorizacaoPre'\n  WHEN 'HOS_Austa_AutorizacaoPos'            THEN 'AutorizacaoPos'\n  WHEN 'HOS_Austa_AutorizacoesProcedimentos' THEN 'AutorizacoesProcedimentos'\n  WHEN 'HOS_Austa_AutorizacaoCirurgia'       THEN 'AutorizacaoCirurgia'\n  WHEN 'HOS_Austa_FechamentoConta'           THEN 'FechamentoConta'\n  WHEN 'HOS_Austa_AutorizacaoPendentes'      THEN 'AutorizacaoPendentes'\n  WHEN 'HOS_Austa_EnvioXML'                 THEN 'EnvioXML'\nEND\nORDER BY le.nome_script",
               "refId": "A"
             }
           ],
