@@ -52,7 +52,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue"
+                "color": "blue",
+                "value": null
               }
             ]
           },
@@ -137,7 +138,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red"
+                "color": "red",
+                "value": null
               },
               {
                 "color": "yellow",
@@ -228,7 +230,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "yellow",
@@ -319,7 +322,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "yellow",
@@ -394,7 +398,7 @@
       "type": "stat"
     },
     {
-      "collapsed": true,
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -402,231 +406,361 @@
         "y": 5
       },
       "id": 210,
-      "panels": [
+      "panels": [],
+      "title": "Monitor por Bot",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "default": false,
+        "type": "grafana-postgresql-datasource",
+        "uid": "rpa-sync-pg"
+      },
+      "description": "Última execução por bot — independe do período selecionado",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left",
+            "cellOptions": {
+              "type": "color-text"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "AGUARDANDO": {
+                        "color": "gray",
+                        "index": 5,
+                        "text": "AGUARDANDO"
+                      },
+                      "CANCELADO": {
+                        "color": "orange",
+                        "index": 2,
+                        "text": "CANCELADO"
+                      },
+                      "CONCLUIDO": {
+                        "color": "green",
+                        "index": 0,
+                        "text": "CONCLUIDO"
+                      },
+                      "ERRO": {
+                        "color": "red",
+                        "index": 1,
+                        "text": "ERRO"
+                      },
+                      "PROCESSANDO": {
+                        "color": "blue",
+                        "index": 4,
+                        "text": "PROCESSANDO"
+                      },
+                      "TIMEOUT": {
+                        "color": "yellow",
+                        "index": 3,
+                        "text": "TIMEOUT"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 153
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Última Execução"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              },
+              {
+                "id": "custom.width",
+                "value": 167
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "text",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Há (seg)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "displayName",
+                "value": "Há quanto tempo"
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 86400
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Duração (min)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Hoje Concluído"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Hoje Erro"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Hoje Cancelado"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 129
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Hoje Timeout"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 111
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Registros (período)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 154
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Bot"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 240
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "text",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "id": 211,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "rpa-sync-pg"
           },
-          "description": "Última execução por bot — independe do período selecionado",
-          "fieldConfig": {
-            "defaults": {
-              "custom": {
-                "align": "left",
-                "displayMode": "auto"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH\nlast_exec AS (\n  SELECT DISTINCT ON (s.id_script)\n    s.id_script,\n    s.nome_script,\n    e.data_hora_inicio,\n    e.data_hora_fim,\n    e.id_status,\n    st.nome_status,\n    EXTRACT(EPOCH FROM (NOW() - e.data_hora_inicio))::BIGINT AS ha_seg\n  FROM rpa_sync.rpa_scripts s\n  JOIN rpa_sync.rpa_processos p ON p.id_script = s.id_script AND p.ativo = 'S'\n  JOIN rpa_sync.rpa_controle_execucao e ON e.id_processo = p.id_processo\n  LEFT JOIN rpa_sync.rpa_status_execucao st ON st.id_status = e.id_status\n  WHERE s.ativo = 'S'\n  ORDER BY s.id_script, e.data_hora_inicio DESC\n),\ntoday_exec AS (\n  SELECT\n    s.id_script,\n    COUNT(*) FILTER (WHERE e.id_status = 3) AS hoje_concluido,\n    COUNT(*) FILTER (WHERE e.id_status = 4) AS hoje_erro,\n    COUNT(*) FILTER (WHERE e.id_status = 5) AS hoje_cancelado,\n    COUNT(*) FILTER (WHERE e.id_status = 6) AS hoje_timeout\n  FROM rpa_sync.rpa_scripts s\n  JOIN rpa_sync.rpa_processos p ON p.id_script = s.id_script\n  JOIN rpa_sync.rpa_controle_execucao e ON e.id_processo = p.id_processo\n  WHERE e.data_hora_inicio >= CURRENT_DATE\n  GROUP BY s.id_script\n),\nbiz_records AS (\n  SELECT bot_key, SUM(total) AS total FROM (\n    SELECT 'AutorizacaoPre' AS bot_key, COUNT(*) AS total\n    FROM rpa_sync.hos_autorizacoes\n    WHERE tipo_autorizacao IN ('SPSADT-PRE', 'Consulta') AND $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'AutorizacaoPos', COUNT(*)\n    FROM rpa_sync.hos_autorizacoes\n    WHERE tipo_autorizacao IN ('Prorrogação internação', 'Prorrogação') AND $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'AutorizacoesProcedimentos', COUNT(*)\n    FROM rpa_sync.hos_autorizacoes\n    WHERE tipo_autorizacao = 'Procedimentos' AND $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'AutorizacaoCirurgia', COUNT(*)\n    FROM rpa_sync.hos_autorizacoes\n    WHERE tipo_autorizacao = 'Cirurgia' AND $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'FechamentoConta', COUNT(*)\n    FROM rpa_sync.rpa_hos_fechamento_conta\n    WHERE $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'AutorizacaoPendentes', COUNT(*)\n    FROM rpa_sync.rpa_hos_autorizacoes_pendentes\n    WHERE $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'EnvioXML', COUNT(*)\n    FROM rpa_sync.hos_protocolo_xml\n    WHERE $__timeFilter(dt_execucao)\n  ) t\n  GROUP BY bot_key\n)\nSELECT\n  le.nome_script                 AS \"Bot\",\n  le.data_hora_inicio AT TIME ZONE 'America/Sao_Paulo' AS \"Última Execução\",\n  CASE WHEN le.data_hora_fim IS NOT NULL\n       THEN ROUND(EXTRACT(EPOCH FROM (le.data_hora_fim - le.data_hora_inicio))/60, 1)\n       ELSE NULL END              AS \"Duração (min)\",\n  le.nome_status                 AS \"Status\",\n  le.ha_seg                      AS \"Há (seg)\",\n  COALESCE(te.hoje_concluido, 0) AS \"Hoje Concluído\",\n  COALESCE(te.hoje_erro, 0)      AS \"Hoje Erro\",\n  COALESCE(te.hoje_cancelado, 0) AS \"Hoje Cancelado\",\n  COALESCE(te.hoje_timeout, 0)   AS \"Hoje Timeout\",\n  COALESCE(br.total, 0)          AS \"Registros (período)\"\nFROM last_exec le\nLEFT JOIN today_exec te ON te.id_script = le.id_script\nLEFT JOIN biz_records br ON br.bot_key = CASE le.nome_script\n  WHEN 'HOS_Austa_AutorizacaoPre'            THEN 'AutorizacaoPre'\n  WHEN 'HOS_Austa_AutorizacaoPos'            THEN 'AutorizacaoPos'\n  WHEN 'HOS_Austa_AutorizacoesProcedimentos' THEN 'AutorizacoesProcedimentos'\n  WHEN 'HOS_Austa_AutorizacaoCirurgia'       THEN 'AutorizacaoCirurgia'\n  WHEN 'HOS_Austa_FechamentoConta'           THEN 'FechamentoConta'\n  WHEN 'HOS_Austa_AutorizacaoPendentes'      THEN 'AutorizacaoPendentes'\n  WHEN 'HOS_Austa_EnvioXML'                 THEN 'EnvioXML'\nEND\nORDER BY le.data_hora_inicio , le.nome_script",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
               }
-            },
-            "overrides": [
+            ],
+            "groupBy": [
               {
-                "matcher": { "id": "byName", "options": "Status" },
-                "properties": [
-                  { "id": "custom.displayMode", "value": "color-background" },
-                  {
-                    "id": "mappings",
-                    "value": [
-                      {
-                        "type": "value",
-                        "options": {
-                          "CONCLUIDO":   { "color": "green",  "text": "CONCLUIDO",   "index": 0 },
-                          "ERRO":        { "color": "red",    "text": "ERRO",        "index": 1 },
-                          "CANCELADO":   { "color": "orange", "text": "CANCELADO",   "index": 2 },
-                          "TIMEOUT":     { "color": "yellow", "text": "TIMEOUT",     "index": 3 },
-                          "PROCESSANDO": { "color": "blue",   "text": "PROCESSANDO", "index": 4 },
-                          "AGUARDANDO":  { "color": "gray",   "text": "AGUARDANDO",  "index": 5 }
-                        }
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "matcher": { "id": "byName", "options": "Última Execução" },
-                "properties": [
-                  { "id": "unit", "value": "dateTimeAsLocal" },
-                  { "id": "custom.width", "value": 190 }
-                ]
-              },
-              {
-                "matcher": { "id": "byName", "options": "Há (seg)" },
-                "properties": [
-                  { "id": "unit", "value": "s" },
-                  { "id": "displayName", "value": "Há quanto tempo" },
-                  { "id": "custom.width", "value": 150 },
-                  { "id": "custom.displayMode", "value": "color-background" },
-                  { "id": "color", "value": { "mode": "thresholds" } },
-                  {
-                    "id": "thresholds",
-                    "value": {
-                      "mode": "absolute",
-                      "steps": [
-                        { "color": "green", "value": null },
-                        { "color": "red", "value": 86400 }
-                      ]
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": { "id": "byName", "options": "Duração (min)" },
-                "properties": [
-                  { "id": "custom.width", "value": 120 }
-                ]
-              },
-              {
-                "matcher": { "id": "byName", "options": "Hoje Concluído" },
-                "properties": [
-                  { "id": "custom.width", "value": 110 },
-                  { "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } },
-                  { "id": "custom.displayMode", "value": "color-background" }
-                ]
-              },
-              {
-                "matcher": { "id": "byName", "options": "Hoje Erro" },
-                "properties": [
-                  { "id": "custom.width", "value": 90 },
-                  { "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } },
-                  { "id": "custom.displayMode", "value": "color-background" }
-                ]
-              },
-              {
-                "matcher": { "id": "byName", "options": "Hoje Cancelado" },
-                "properties": [
-                  { "id": "custom.width", "value": 110 },
-                  { "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } },
-                  { "id": "custom.displayMode", "value": "color-background" }
-                ]
-              },
-              {
-                "matcher": { "id": "byName", "options": "Hoje Timeout" },
-                "properties": [
-                  { "id": "custom.width", "value": 100 },
-                  { "id": "color", "value": { "mode": "fixed", "fixedColor": "yellow" } },
-                  { "id": "custom.displayMode", "value": "color-background" }
-                ]
-              },
-              {
-                "matcher": { "id": "byName", "options": "Registros (período)" },
-                "properties": [
-                  { "id": "custom.width", "value": 130 }
-                ]
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
               }
-            ]
-          },
-          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 6 },
-          "id": 211,
-          "options": {
-            "cellHeight": "sm",
-            "footer": { "show": false }
-          },
-          "targets": [
-            {
-              "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-              "editorMode": "code",
-              "format": "table",
-              "rawQuery": true,
-              "rawSql": "WITH\nlast_exec AS (\n  SELECT DISTINCT ON (s.id_script)\n    s.id_script,\n    s.nome_script,\n    e.data_hora_inicio,\n    e.data_hora_fim,\n    e.id_status,\n    st.nome_status,\n    EXTRACT(EPOCH FROM (NOW() - e.data_hora_inicio))::BIGINT AS ha_seg\n  FROM rpa_sync.rpa_scripts s\n  JOIN rpa_sync.rpa_processos p ON p.id_script = s.id_script AND p.ativo = 'S'\n  JOIN rpa_sync.rpa_controle_execucao e ON e.id_processo = p.id_processo\n  LEFT JOIN rpa_sync.rpa_status_execucao st ON st.id_status = e.id_status\n  WHERE s.ativo = 'S'\n  ORDER BY s.id_script, e.data_hora_inicio DESC\n),\ntoday_exec AS (\n  SELECT\n    s.id_script,\n    COUNT(*) FILTER (WHERE e.id_status = 3) AS hoje_concluido,\n    COUNT(*) FILTER (WHERE e.id_status = 4) AS hoje_erro,\n    COUNT(*) FILTER (WHERE e.id_status = 5) AS hoje_cancelado,\n    COUNT(*) FILTER (WHERE e.id_status = 6) AS hoje_timeout\n  FROM rpa_sync.rpa_scripts s\n  JOIN rpa_sync.rpa_processos p ON p.id_script = s.id_script\n  JOIN rpa_sync.rpa_controle_execucao e ON e.id_processo = p.id_processo\n  WHERE e.data_hora_inicio >= CURRENT_DATE\n  GROUP BY s.id_script\n),\nbiz_records AS (\n  SELECT bot_key, SUM(total) AS total FROM (\n    SELECT 'AutorizacaoPre' AS bot_key, COUNT(*) AS total\n    FROM rpa_sync.hos_autorizacoes\n    WHERE tipo_autorizacao IN ('SPSADT-PRE', 'Consulta') AND $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'AutorizacaoPos', COUNT(*)\n    FROM rpa_sync.hos_autorizacoes\n    WHERE tipo_autorizacao IN ('Prorrogação internação', 'Prorrogação') AND $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'AutorizacoesProcedimentos', COUNT(*)\n    FROM rpa_sync.hos_autorizacoes\n    WHERE tipo_autorizacao = 'Procedimentos' AND $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'AutorizacaoCirurgia', COUNT(*)\n    FROM rpa_sync.hos_autorizacoes\n    WHERE tipo_autorizacao = 'Cirurgia' AND $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'FechamentoConta', COUNT(*)\n    FROM rpa_sync.rpa_hos_fechamento_conta\n    WHERE $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'AutorizacaoPendentes', COUNT(*)\n    FROM rpa_sync.rpa_hos_autorizacoes_pendentes\n    WHERE $__timeFilter(dt_execucao)\n    UNION ALL\n    SELECT 'EnvioXML', COUNT(*)\n    FROM rpa_sync.hos_protocolo_xml\n    WHERE $__timeFilter(dt_execucao)\n  ) t\n  GROUP BY bot_key\n)\nSELECT\n  le.nome_script                 AS \"Bot\",\n  le.data_hora_inicio AT TIME ZONE 'America/Sao_Paulo' AS \"Última Execução\",\n  CASE WHEN le.data_hora_fim IS NOT NULL\n       THEN ROUND(EXTRACT(EPOCH FROM (le.data_hora_fim - le.data_hora_inicio))/60, 1)\n       ELSE NULL END              AS \"Duração (min)\",\n  le.nome_status                 AS \"Status\",\n  le.ha_seg                      AS \"Há (seg)\",\n  COALESCE(te.hoje_concluido, 0) AS \"Hoje Concluído\",\n  COALESCE(te.hoje_erro, 0)      AS \"Hoje Erro\",\n  COALESCE(te.hoje_cancelado, 0) AS \"Hoje Cancelado\",\n  COALESCE(te.hoje_timeout, 0)   AS \"Hoje Timeout\",\n  COALESCE(br.total, 0)          AS \"Registros (período)\"\nFROM last_exec le\nLEFT JOIN today_exec te ON te.id_script = le.id_script\nLEFT JOIN biz_records br ON br.bot_key = CASE le.nome_script\n  WHEN 'HOS_Austa_AutorizacaoPre'            THEN 'AutorizacaoPre'\n  WHEN 'HOS_Austa_AutorizacaoPos'            THEN 'AutorizacaoPos'\n  WHEN 'HOS_Austa_AutorizacoesProcedimentos' THEN 'AutorizacoesProcedimentos'\n  WHEN 'HOS_Austa_AutorizacaoCirurgia'       THEN 'AutorizacaoCirurgia'\n  WHEN 'HOS_Austa_FechamentoConta'           THEN 'FechamentoConta'\n  WHEN 'HOS_Austa_AutorizacaoPendentes'      THEN 'AutorizacaoPendentes'\n  WHEN 'HOS_Austa_EnvioXML'                 THEN 'EnvioXML'\nEND\nORDER BY le.nome_script",
-              "refId": "A"
-            }
-          ],
-          "title": "Status Atual dos Bots",
-          "type": "table"
-        },
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "description": "Contagem de execuções por status de execução no período selecionado",
-          "fieldConfig": {
-            "defaults": {
-              "custom": { "lineWidth": 1, "fillOpacity": 85 }
-            },
-            "overrides": [
-              {
-                "matcher": { "id": "byName", "options": "Concluído" },
-                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }]
-              },
-              {
-                "matcher": { "id": "byName", "options": "Erro" },
-                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }]
-              },
-              {
-                "matcher": { "id": "byName", "options": "Cancelado" },
-                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }]
-              },
-              {
-                "matcher": { "id": "byName", "options": "Timeout" },
-                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "yellow" } }]
-              }
-            ]
-          },
-          "gridPos": { "h": 10, "w": 12, "x": 0, "y": 14 },
-          "id": 212,
-          "options": {
-            "xField": "Bot",
-            "stacking": { "mode": "normal", "group": "A" },
-            "orientation": "horizontal",
-            "barWidth": 0.8,
-            "groupWidth": 0.75,
-            "fillOpacity": 85,
-            "gradientMode": "none",
-            "legend": { "displayMode": "list", "placement": "right" }
-          },
-          "targets": [
-            {
-              "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-              "editorMode": "code",
-              "format": "table",
-              "rawQuery": true,
-              "rawSql": "SELECT\n  s.nome_script AS \"Bot\",\n  COUNT(*) FILTER (WHERE e.id_status = 3) AS \"Concluído\",\n  COUNT(*) FILTER (WHERE e.id_status = 4) AS \"Erro\",\n  COUNT(*) FILTER (WHERE e.id_status = 5) AS \"Cancelado\",\n  COUNT(*) FILTER (WHERE e.id_status = 6) AS \"Timeout\"\nFROM rpa_sync.rpa_controle_execucao e\nJOIN rpa_sync.rpa_processos p ON p.id_processo = e.id_processo\nJOIN rpa_sync.rpa_scripts s ON s.id_script = p.id_script\nWHERE $__timeFilter(e.data_hora_inicio)\n  AND s.ativo = 'S'\nGROUP BY s.nome_script\nORDER BY s.nome_script",
-              "refId": "A"
-            }
-          ],
-          "title": "Execuções por Bot — Período",
-          "type": "barchart"
-        },
-        {
-          "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-          "description": "Registros processados por bot e status de negócio no período",
-          "fieldConfig": {
-            "defaults": { "custom": { "lineWidth": 1, "fillOpacity": 85 } },
-            "overrides": []
-          },
-          "gridPos": { "h": 10, "w": 12, "x": 12, "y": 14 },
-          "id": 213,
-          "options": {
-            "xField": "bot\\status",
-            "stacking": { "mode": "normal", "group": "A" },
-            "orientation": "horizontal",
-            "barWidth": 0.8,
-            "groupWidth": 0.75,
-            "fillOpacity": 85,
-            "gradientMode": "none",
-            "legend": { "displayMode": "list", "placement": "right" }
-          },
-          "targets": [
-            {
-              "datasource": { "type": "postgres", "uid": "rpa-sync-pg" },
-              "editorMode": "code",
-              "format": "table",
-              "rawQuery": true,
-              "rawSql": "SELECT bot, status, total FROM (\n  SELECT 'AutorizacaoPre' AS bot, status, COUNT(*) AS total FROM rpa_sync.hos_autorizacoes WHERE tipo_autorizacao IN ('SPSADT-PRE', 'Consulta') AND $__timeFilter(dt_execucao) GROUP BY status\n  UNION ALL\n  SELECT 'AutorizacaoPos', status, COUNT(*) FROM rpa_sync.hos_autorizacoes WHERE tipo_autorizacao IN ('Prorrogação internação', 'Prorrogação') AND $__timeFilter(dt_execucao) GROUP BY status\n  UNION ALL\n  SELECT 'AutorizacoesProcedimentos', status, COUNT(*) FROM rpa_sync.hos_autorizacoes WHERE tipo_autorizacao = 'Procedimentos' AND $__timeFilter(dt_execucao) GROUP BY status\n  UNION ALL\n  SELECT 'AutorizacaoCirurgia', status, COUNT(*) FROM rpa_sync.hos_autorizacoes WHERE tipo_autorizacao = 'Cirurgia' AND $__timeFilter(dt_execucao) GROUP BY status\n  UNION ALL\n  SELECT 'FechamentoConta', status, COUNT(*) FROM rpa_sync.rpa_hos_fechamento_conta WHERE $__timeFilter(dt_execucao) GROUP BY status\n  UNION ALL\n  SELECT 'AutorizacaoPendentes', status, COUNT(*) FROM rpa_sync.rpa_hos_autorizacoes_pendentes WHERE $__timeFilter(dt_execucao) GROUP BY status\n  UNION ALL\n  SELECT 'EnvioXML', status_execucao, COUNT(*) FROM rpa_sync.hos_protocolo_xml WHERE $__timeFilter(dt_execucao) GROUP BY status_execucao\n) t\nORDER BY bot, status",
-              "refId": "A"
-            }
-          ],
-          "title": "Volume de Registros por Bot — Período",
-          "transformations": [
-            {
-              "id": "groupingToMatrix",
-              "options": {
-                "columnField": "status",
-                "rowField": "bot",
-                "valueField": "total"
-              }
-            }
-          ],
-          "type": "barchart"
+            ],
+            "limit": 50
+          }
         }
       ],
-      "title": "Monitor por Bot",
-      "type": "row"
+      "title": "Status Atual dos Bots",
+      "type": "table"
     },
     {
       "collapsed": true,
@@ -634,7 +768,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 6
+        "y": 17
       },
       "id": 200,
       "panels": [
@@ -906,7 +1040,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 7
+        "y": 18
       },
       "id": 300,
       "panels": [
@@ -1222,7 +1356,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 19
       },
       "id": 400,
       "panels": [
@@ -1576,7 +1710,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 9
+        "y": 20
       },
       "id": 500,
       "panels": [
@@ -1854,7 +1988,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 10
+        "y": 21
       },
       "id": 600,
       "panels": [
@@ -2413,6 +2547,6 @@
   "timezone": "America/Sao_Paulo",
   "title": "RPA Healthcare — Saúde e Ganho das Automações",
   "uid": "rpa-healthcare",
-  "version": 7,
+  "version": 25,
   "weekStart": ""
 }

@@ -111,6 +111,7 @@ TABLES = [
         pk="ID_EXECUCAO",
         delta_col="DATA_HORA_INICIO",
         strategy="upsert",
+        lookback_hours=4,   # re-sync últimas 4h para capturar atualizações de status tardias
         skip_cols=[],
         update_cols=["DATA_HORA_FIM", "ID_STATUS", "OBSERVACOES"],
     ),
@@ -186,11 +187,15 @@ def build_delta_query(table, columns, last_id, last_updated_at):
     col_list = ", ".join(columns)
     pk       = table["pk"]
     delta    = table["delta_col"]
+    lookback = table.get("lookback_hours")
 
     conds = [f"{pk} > {last_id}"]
     if delta:
         ts = last_updated_at.strftime("%Y-%m-%d %H:%M:%S")
         conds.append(f"{delta} > TIMESTAMP '{ts}'")
+    if lookback and delta:
+        # garante re-sync de registros recentes cujo status pode ter mudado após o watermark
+        conds.append(f"{delta} >= SYSDATE - {lookback}/24")
 
     where = " OR ".join(conds)
     return (
