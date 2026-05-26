@@ -176,6 +176,7 @@ CREATE TABLE IF NOT EXISTS rpa_sync.hos_autorizacoes (
     sequencia_agenda          BIGINT,
     cd_estabelecimento        BIGINT,
     cd_ult_evol_med           VARCHAR(50),
+    cid                       VARCHAR(20),
     _synced_at                TIMESTAMP    DEFAULT NOW()
     -- ANEXOS omitido (CLOB não necessário para dashboard)
 );

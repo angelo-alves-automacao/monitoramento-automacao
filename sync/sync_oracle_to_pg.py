@@ -111,7 +111,8 @@ TABLES = [
         pk="ID_EXECUCAO",
         delta_col="DATA_HORA_INICIO",
         strategy="upsert",
-        lookback_hours=4,   # re-sync últimas 4h para capturar atualizações de status tardias
+        lookback_hours=8,
+        terminal_status=(3, 4),  # CONCLUIDO=3, ERRO=4 — nunca sobrescrever com CANCELADO/outro
         skip_cols=[],
         update_cols=["DATA_HORA_FIM", "ID_STATUS", "OBSERVACOES"],
     ),
@@ -230,8 +231,9 @@ def connect_oracle() -> oracledb.Connection:
 
 
 # ── PostgreSQL helpers ────────────────────────────────────────────────────────
-def build_upsert_sql(table_name, pk, columns, update_cols, strategy):
+def build_upsert_sql(table_name, pk, columns, update_cols, strategy, terminal_status=None):
     pg_table     = f"{PG_SCHEMA}.{table_name.lower()}"
+    tbl          = table_name.lower()
     col_names    = ", ".join(c.lower() for c in columns) + ", _synced_at"
     placeholders = ", ".join(["%s"] * len(columns)) + ", NOW()"
     pk_lower     = pk.lower()
@@ -239,7 +241,22 @@ def build_upsert_sql(table_name, pk, columns, update_cols, strategy):
     if strategy == "insert_only":
         conflict = f"ON CONFLICT ({pk_lower}) DO NOTHING"
     elif update_cols:
-        sets     = ", ".join(f"{c.lower()} = EXCLUDED.{c.lower()}" for c in update_cols)
+        if terminal_status:
+            ids = ", ".join(str(s) for s in terminal_status)
+            set_parts = []
+            for c in update_cols:
+                cl = c.lower()
+                if cl in ("id_status", "data_hora_fim"):
+                    # não sobrescreve status/fim quando já está num estado terminal
+                    set_parts.append(
+                        f"{cl} = CASE WHEN {tbl}.id_status IN ({ids}) "
+                        f"THEN {tbl}.{cl} ELSE EXCLUDED.{cl} END"
+                    )
+                else:
+                    set_parts.append(f"{cl} = EXCLUDED.{cl}")
+            sets = ", ".join(set_parts)
+        else:
+            sets = ", ".join(f"{c.lower()} = EXCLUDED.{c.lower()}" for c in update_cols)
         conflict = f"ON CONFLICT ({pk_lower}) DO UPDATE SET {sets}, _synced_at = NOW()"
     else:
         conflict = f"ON CONFLICT ({pk_lower}) DO NOTHING"
@@ -260,7 +277,7 @@ def sync_incremental(ora_cur, pg_cur, table_cfg):
     di       = columns.index(delta) if delta and delta in columns else None
 
     query  = build_delta_query(table_cfg, columns, last_id, last_updated_at)
-    upsert = build_upsert_sql(name, pk, columns, table_cfg["update_cols"], strategy)
+    upsert = build_upsert_sql(name, pk, columns, table_cfg["update_cols"], strategy, table_cfg.get("terminal_status"))
 
     ora_cur.execute(query)
 
